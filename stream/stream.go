@@ -16,9 +16,11 @@ import (
 type Stream struct {
 	conn     *net.Conn
 	sHandler bool
+	sh       *ipfsapi.Shell
+	proto    protocol.ID
 }
 
-func wrapConn(c *net.Conn, handler bool) Stream {
+func wrapConn(c *net.Conn, handler bool, sh *ipfsapi.Shell, proto protocol.ID) Stream {
 	return Stream{conn: c, sHandler: handler}
 }
 
@@ -39,16 +41,36 @@ func (s *Stream) Write(b []byte) (int, error) {
 
 func (s *Stream) Close() error {
 	if !s.isHandler() {
-		// close ipfs p2p forwarder
+		(*s).sh.Request("p2p/close", "--protocol="+(*s).proto.String()).Send(context.Background())
 	}
 
 	c := *s.getConn()
-	err := c.Close()
-
+	return c.Close()
 }
 
-func NewStream(sh *ipfsapi.Shell, proto protocol.ID, id string) (*Stream, error) {
+func NewStream(sh *ipfsapi.Shell, proto protocol.ID, nid string) (*Stream, error) {
+	err := establishConnection(sh, nid)
+	if err != nil {
+		return nil, err
+	}
 
+	fport, err := freeport.GetFreePort()
+	if err != nil {
+		return nil, err
+	}
+
+	addr, err := maddr.NewMultiaddr("/ip4/127.0.0.1/tcp/" + strconv.Itoa(fport))
+	if err != nil {
+		return nil, err
+	}
+
+	conn, err := streamForward(sh, proto, addr, nid)
+	if err != nil {
+		return nil, err
+	}
+
+	s := wrapConn(conn, false, sh, proto)
+	return &s, nil
 }
 
 // NewStreamHandler should be run in its own go routine
@@ -68,52 +90,15 @@ func NewStreamHandler(sh *ipfsapi.Shell, proto protocol.ID, callback func(s Stre
 	if err != nil {
 		panic(err)
 	}
-	// defer closing p2p listener
+	defer closeProtoListener(sh, proto)
 
 	for {
 		conn, err := (*ln).Accept()
 		if err != nil {
 			continue
 		}
-		s := wrapConn(&conn, true)
+		s := wrapConn(&conn, true, sh, proto)
 		callback(s)
 		s.Close()
 	}
-}
-
-// ipfs api libp2p forward and listen functions
-func streamListen(sh *ipfsapi.Shell, proto protocol.ID, addr maddr.Multiaddr) (*net.Listener, error) {
-	resp, err := sh.Request("p2p/listen", proto.String(), addr.String()).Send(context.Background())
-	if err != nil {
-		return nil, err
-	}
-
-	defer resp.Close()
-	if resp.Error != nil {
-		return nil, resp.Error
-	}
-
-	maProtos := addr.Protocols()
-	if len(maProtos) < 2 {
-		return nil, err
-	}
-
-	lnProto := maProtos[1].Name
-	lnPort, err := addr.ValueForProtocol(maProtos[1].Code)
-	if err != nil {
-		return nil, err
-	}
-
-	ip, err := addr.ValueForProtocol(maProtos[0].Code)
-	if err != nil {
-		return nil, err
-	}
-	lnAddr := ip + ":" + lnPort
-
-	ln, err := net.Listen(lnProto, lnAddr)
-	return &ln, err
-}
-
-func streamForward(sh *ipfsapi.Shell, proto protocol.ID, addr maddr.Multiaddr, nid string) (*net.Conn, error) {
-
 }
