@@ -2,6 +2,7 @@ package stream
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"strconv"
 
@@ -49,15 +50,18 @@ func (s *Stream) Close() error {
 }
 
 func NewStream(sh *ipfsapi.Shell, proto protocol.ID, nid string) (*Stream, error) {
+	fmt.Println("Attempting to establish connection")
 	err := establishConnection(sh, nid)
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("Connection Established")
 
 	fport, err := freeport.GetFreePort()
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("Port Allocated")
 
 	addr, err := maddr.NewMultiaddr("/ip4/127.0.0.1/tcp/" + strconv.Itoa(fport))
 	if err != nil {
@@ -68,8 +72,10 @@ func NewStream(sh *ipfsapi.Shell, proto protocol.ID, nid string) (*Stream, error
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("Stream forwarding")
 
 	s := wrapConn(conn, false, sh, proto)
+	fmt.Println("Wrapping connection object")
 	return &s, nil
 }
 
