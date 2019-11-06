@@ -50,6 +50,7 @@ func (s *Stream) Close() error {
 }
 
 func NewStream(sh *ipfsapi.Shell, proto protocol.ID, nid string) (*Stream, error) {
+	// Will be replaced by WDS multiaddress cacheing functionality
 	/*
 		fmt.Println("Attempting to establish connection")
 		err := establishConnection(sh, nid)
@@ -88,6 +89,7 @@ func NewStreamHandler(sh *ipfsapi.Shell, proto protocol.ID, callback func(s Stre
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("Using port " + strconv.Itoa(fport))
 
 	addr, err := maddr.NewMultiaddr("/ip4/127.0.0.1/tcp/" + strconv.Itoa(fport))
 	if err != nil {
@@ -99,12 +101,14 @@ func NewStreamHandler(sh *ipfsapi.Shell, proto protocol.ID, callback func(s Stre
 		panic(err)
 	}
 	defer closeProtoListener(sh, proto)
+	fmt.Println("Listening on protocol")
 
 	for {
 		conn, err := (*ln).Accept()
 		if err != nil {
 			continue
 		}
+		fmt.Println("Got new connection")
 		s := wrapConn(&conn, true, sh, proto)
 		callback(s)
 		s.Close()
