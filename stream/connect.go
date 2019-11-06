@@ -3,6 +3,7 @@ package stream
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net"
 
 	"github.com/arstevens/go-libhive-core/protocol"
@@ -59,8 +60,10 @@ func establishConnection(sh *ipfsapi.Shell, nid string) error {
 	// DHT find peer multiaddresses and store them in peerstore
 	pi, err := sh.FindPeer(nid)
 	if err != nil {
+		fmt.Println("1" + err.Error())
 		return err
 	} else if len(pi.Addrs) < 1 {
+		fmt.Println("2" + err.Error())
 		return err
 	}
 
