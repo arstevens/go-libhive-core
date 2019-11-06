@@ -50,12 +50,14 @@ func (s *Stream) Close() error {
 }
 
 func NewStream(sh *ipfsapi.Shell, proto protocol.ID, nid string) (*Stream, error) {
-	fmt.Println("Attempting to establish connection")
-	err := establishConnection(sh, nid)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("Connection Established")
+	/*
+		fmt.Println("Attempting to establish connection")
+		err := establishConnection(sh, nid)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println("Connection Established")
+	*/
 
 	fport, err := freeport.GetFreePort()
 	if err != nil {

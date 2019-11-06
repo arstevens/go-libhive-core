@@ -11,6 +11,10 @@ import (
 
 func main() {
 	sh := ipfsapi.NewLocalShell()
+	err := sh.Get("/ipfs/QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG/readme", "/home/aleksandr/Workspace/go-libhive-core/libtest")
+	if err != nil {
+		return
+	}
 	proto := hproto.NewProtocolId("htest/1.0")
 	hs, err := hstream.NewStream(sh, proto, os.Args[1])
 	if err != nil {
