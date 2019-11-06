@@ -61,10 +61,8 @@ func establishConnection(sh *ipfsapi.Shell, nid string) error {
 	pi, err := sh.FindPeer(nid)
 	fmt.Println(pi)
 	if err != nil {
-		fmt.Println("1" + err.Error())
 		return err
 	} else if len(pi.Addrs) < 1 {
-		fmt.Println("2" + err.Error())
 		return err
 	}
 

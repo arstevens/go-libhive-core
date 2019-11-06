@@ -2,7 +2,6 @@ package stream
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"strconv"
 
@@ -64,7 +63,6 @@ func NewStream(sh *ipfsapi.Shell, proto protocol.ID, nid string) (*Stream, error
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Port Allocated")
 
 	addr, err := maddr.NewMultiaddr("/ip4/127.0.0.1/tcp/" + strconv.Itoa(fport))
 	if err != nil {
@@ -75,10 +73,8 @@ func NewStream(sh *ipfsapi.Shell, proto protocol.ID, nid string) (*Stream, error
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Stream forwarding")
 
 	s := wrapConn(conn, false, sh, proto)
-	fmt.Println("Wrapping connection object")
 	return &s, nil
 }
 
@@ -89,7 +85,6 @@ func NewStreamHandler(sh *ipfsapi.Shell, proto protocol.ID, callback func(s Stre
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Using port " + strconv.Itoa(fport))
 
 	addr, err := maddr.NewMultiaddr("/ip4/127.0.0.1/tcp/" + strconv.Itoa(fport))
 	if err != nil {
@@ -101,14 +96,12 @@ func NewStreamHandler(sh *ipfsapi.Shell, proto protocol.ID, callback func(s Stre
 		panic(err)
 	}
 	defer closeProtoListener(sh, proto)
-	fmt.Println("Listening on protocol")
 
 	for {
 		conn, err := (*ln).Accept()
 		if err != nil {
 			continue
 		}
-		fmt.Println("Got new connection")
 		s := wrapConn(&conn, true, sh, proto)
 		callback(s)
 		s.Close()
