@@ -86,7 +86,7 @@ func (m *Message) DataLen() int64 {
 	return dLen
 }
 
-// Marshalling
+// Marshaling
 func (m *Message) Marshal() []byte {
 	jsonString, err := json.Marshal(m.header)
 	if err != nil {
@@ -105,4 +105,9 @@ func (m *Message) Unmarshal(raw []byte) error {
 		return err
 	}
 	return nil
+}
+
+// Prep for Sending
+func PackageBytes(msg []byte) []byte {
+	return append(msg, 0x03)
 }
