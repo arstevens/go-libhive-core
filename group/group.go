@@ -25,14 +25,31 @@ func (g *Group) Tag(nid string, subid string) {
 	g.subnets[subid] = subnet
 }
 
-func (g *Group) Publish(data message.Message) error {
+func (g *Group) publish(data message.Message, nodes map[string]*stream.Stream) error {
 	buf := make([]byte, 8192)
-	for k, v := range g.nodes {
-		n, err := data.Read(buf)
-		if n > 0 {
+	for _, v := range nodes {
+		n, _ := data.Read(buf)
+		for n > 0 {
 			_, err := v.Write(buf[:n])
+			if err != nil {
+				return err
+			}
+			n, err = data.Read(buf)
 		}
-		v.Write(data)
-		_, err := v.Write
+		data.Reset()
 	}
+	return nil
+}
+
+func (g *Group) Publish(data message.Message) error {
+	return g.publish(data, g.nodes)
+}
+
+func (g *Group) TagPublish(data message.Message, tag string) error {
+	subnetNodeIds := g.subnets[tag]
+	subnetMap := make(map[string]*stream.Stream)
+	for _, node := range subnetNodeIds {
+		subnetMap[node] = g.nodes[node]
+	}
+	return g.publish(data, subnetMap)
 }
