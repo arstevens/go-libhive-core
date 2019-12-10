@@ -2,16 +2,23 @@ package group
 
 import (
 	"bytes"
-
+	"github.com/arstevens/go-libhive-core/security"
 	"github.com/arstevens/go-libhive-core/message"
+	"github.com/libp2p/go-libp2p-core/crypto"
 )
 
 const (
 	ConsensusType = "consensus"
+	PropogationType = "propogation"
 )
 
-// @return: % of subnet consensus
-func Consensus(subnet *Group, value []byte) (float32, error) {
+type verifPacket struct {
+	value []byte
+	sign []byte
+}
+
+// @return: % of verified subnet consensus, % of subnet verified, error
+func BasicConsensus(subnet *Group, value []byte) (float32, float32, error) {
 	// Create Message
 	hMap := make(map[string]interface{})
 	hMap[message.TypeField] = ConsensusType
@@ -20,16 +27,74 @@ func Consensus(subnet *Group, value []byte) (float32, error) {
 	valueReader := bytes.NewReader(value)
 	msg := message.NewMessage(header, valueReader)
 
+	// Start communication loop
 	_, entryConn := subnet.EntryNode()
 	err := conn.WriteReader(msg)
 	defer entryConn.Close()
 
+	// End communication loop
 	_, exitConn := subnet.ExitNode()
-	ch := exitConn.ChanReader()
-	// must buffer until reach EndOfTransmission character
-	resp := <-ch
+	rHeader := NewBufferedMessageHeader(exitConn)
+	respMsg := NewMessage(rHeader, exitConn)
 
-	// Unmarshal into Message
-	// Ensure each signature is valid in value custody chain
-	// compute consensus score
+	// Grab public keys from subnet
+	// TODO: May want to run this in seperate goroutine while waiting for ECL
+	nodes := subnet.SortedKeys()
+	keys := make([]crypto.RsaPublicKey, len(nodes))
+	for i, k := range nodes {
+		pubKey, err := security.RetrievePublicKey(g.GetShell(), k)
+		if err != nil {
+			return 0.0, 0.0, err
+		}
+		keys[i] = pubKey
+	}
+
+	// Parse raw bytes
+	vPackets := make([]verifPacket, len(nodes))
+	nodeResp, err := respMsg.ReadUntil(0x03)
+	nPackets := 0
+	for err != nil && nPackets < len(vPackets) {
+		vPackets[i] = verifPacket{
+			value: nodeResp[:len(value)],
+			sign: nodeResp[len(value):],
+		}
+		nodeResp, err = respMsg.ReadUntil(0x03)
+		nPackets += 1
+	}
+
+	// Calculate consensus scores
+	nVerified := 0
+	nConsensus := 0
+	for i, pKey := range keys {
+		vPacket := vPackets[i]
+		verified, err := pKey.Verify(vPacket.value, vPacket.sign)
+		if err != nil {
+			return nVerified, nConsensus, err
+		}
+
+		if verified {
+			nVerified += 1
+			if bytes.Equal(value, vPacket.value) {
+				nConsensus += 1
+			}
+		}
+	}
+
+	// Propogate recieved (value, sign) tuples to subnet for individual consensus
+	respMsg.Reset()
+	pmHeaderMap := make(map[string]interface{})
+	pmHeaderMap[message.TypeField] = PropogationType
+	pmHeaderMap[message.DataLenField] = rHeader.DataLen()
+	respMsg.setHeader(message.NewMessageHeader(pmHeaderMap))
+
+	// add origin/chain of custody to reduce redundant transmissions
+	err = entryConn.WriteReader(respMsg)
+	if err != nil {
+		return 0.0, 0.0, err
+	}
+	eHeader := NewBufferedMessageHeader(exitConn)
+
+	pVerified := float32(nVerified) / float32(len(nodes))
+	pConsensus := float32(nConsensus) / float32(len(nodes))
+	return pConsensus, pVerified, nil
 }

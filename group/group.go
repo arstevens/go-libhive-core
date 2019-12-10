@@ -5,29 +5,43 @@ import (
 
 	"github.com/arstevens/go-libhive-core/message"
 	"github.com/arstevens/go-libhive-core/stream"
+	ipfsapi "github.com/ipfs/go-ipfs-api"
 )
 
 type Group struct {
 	nodes     map[string]*stream.Stream
+	sortedNodeKeys []string
 	subnets   map[string][]string
-	entryNode string
-	exitNode  string
+	ipfsShell *ipfsapi.Shell
 }
 
-func NewGroup(n map[string]*stream.Stream) *Group {
+func NewGroup(sh *ipfsapi.Shell, n map[string]*stream.Stream) *Group {
 	g := Group{
 		nodes:     n,
 		subnets:   make(map[string][]string),
-		entryNode: "",
-		exitNode:  "",
+		ipfsShell: sh,
 	}
 
-	g.evalSubnet()
+	nids := make([]string, len(g.nodes))
+	i := 0
+	for k, _ := range g.nodes {
+		nids[i] = k
+		i += 1
+	}
+	sort.Strings(nids)
+	g.sortedNodeKeys = nids
+
 	return &g
 }
 
 func (g *Group) Add(nid string, s *stream.Stream) {
 	g.nodes[nid] = s
+	g.sortedNodeKeys = append(g.sortedNodeKeys, nid)
+	sort.Strings(g.sortedNodeKeys)
+}
+
+func (g *Group) SortedKeys() []string {
+	return g.sortedNodeKeys
 }
 
 func (g *Group) Tag(nid string, subid string) {
@@ -39,6 +53,14 @@ func (g *Group) Tag(nid string, subid string) {
 		subnet = append(subnet, nid)
 	}
 	g.subnets[subid] = subnet
+}
+
+func (g *Group) GetNodes() map[string]*stream.Stream {
+	return g.nodes
+}
+
+func (g *Group) GetShell() *ipfsapi.Shell {
+	return g.ipfsShell
 }
 
 func (g *Group) publish(data message.Message, nodes map[string]*stream.Stream) error {
@@ -71,24 +93,11 @@ func (g *Group) TagPublish(data message.Message, tag string) error {
 }
 
 func (g *Group) EntryNode() (string, *stream.Stream) {
-	return g.entryNode, g.nodes[g.entryNode]
+	nid := g.sortedNodeKeys[0]
+	return nid, g.nodes[nid]
 }
 
 func (g *Group) ExitNode() (string, *stream.Stream) {
-	return g.exitNode, g.nodes[g.exitNode]
-}
-
-func (g *Group) evalSubnet() {
-	for k, _ := range g.nodes {
-		if g.entryNode == "" {
-			g.entryNode = k
-			g.exitNode = k
-		} else if strings.Compare(k, g.entryNode) > 0 {
-			g.entryNode = k
-		}
-
-		if strings.Compare(k, g.exitNode) < 0 {
-			g.exitNode = k
-		}
-	}
+	nid := g.sortedNodeKeys[len(g.sortedNodeKeys) - 1]
+	return nid, g.nodes[nid]
 }
