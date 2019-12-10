@@ -2,26 +2,35 @@ package message
 
 import (
 	"fmt"
+	"io"
+	"io/ioutil"
 	"os"
 )
 
 type Message struct {
-	header      MessageHeader
+	header      *MessageHeader
 	rawHeader   []byte
 	bodyBufFile string
 	body        *os.File
 	bytePtr     int
 }
 
-func NewMessage(h MessageHeader, tmpf string) *Message {
+func NewMessage(h *MessageHeader, r io.Reader) *Message {
 	rHead := h.Marshal()
-	file, err := os.Open(tmpf)
-	if err != nil {
-		fmt.Println("Could not read temp file for new message")
-		fmt.Println(err.Error())
-		return nil
+	file, _ := ioutil.TempFile(os.TempDir(), "msg")
+	buf := make([]byte, 8192)
+	n, _ := r.Read(buf)
+	for n > 0 {
+		_, err := file.Write(buf[:n])
+		if err != nil {
+			fmt.Println("Could not write to temp file to create message")
+			return nil
+		}
+		n, _ = r.Read(buf)
 	}
-	m := Message{bytePtr: 0, header: h, rawHeader: rHead, body: file, bodyBufFile: tmpf}
+	file.Seek(0, io.SeekStart)
+
+	m := Message{bytePtr: 0, header: h, rawHeader: rHead, body: file, bodyBufFile: file.Name()}
 	return &m
 }
 
@@ -56,4 +65,8 @@ func (m *Message) Read(b []byte) (int, error) {
 		m.bytePtr += n
 		return n, err
 	}
+}
+
+func (m *Message) Clean() error {
+	return m.body.Close()
 }

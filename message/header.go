@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	TransactionType = iota
-	QueryType       = iota
+	TransactionType = "transaction"
+	QueryType       = "query"
 )
 
 const (
