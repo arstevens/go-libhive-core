@@ -1,10 +1,10 @@
 package message
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"bufio"
 	"os"
 )
 
@@ -21,22 +21,23 @@ func NewMessage(h *MessageHeader, r io.Reader) *Message {
 	tRead := int64(0)
 	rHead := h.Marshal()
 	file, _ := ioutil.TempFile(os.TempDir(), "msg")
+	bufLen := int64(8192)
 	buf := make([]byte, 8192)
 	var n int
-	if bodyLen < len(buf) {
+	if bodyLen < bufLen {
 		n, _ = r.Read(buf[:bodyLen])
 	} else {
 		n, _ = r.Read(buf)
 	}
-	tRead += n
+	tRead += int64(n)
 	for n > 0 && tRead < bodyLen {
 		_, err := file.Write(buf[:n])
 		if err != nil {
 			fmt.Println("Could not write to temp file to create message")
 			return nil
 		}
-		if (bodyLen - tRead) < len(buf) {
-			n, _ = r.Read(buf[:bodyLen - tRead])
+		if (bodyLen - int64(tRead)) < bufLen {
+			n, _ = r.Read(buf[:bodyLen-tRead])
 		} else {
 			n, _ = r.Read(buf)
 		}
@@ -62,7 +63,6 @@ func (m *Message) Body() *os.File {
 func (m *Message) SetBody(r io.Reader) {
 	m = NewMessage(m.header, r)
 }
-
 
 func (m *Message) Reset() error {
 	err := m.body.Close()

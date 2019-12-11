@@ -2,20 +2,16 @@ package group
 
 import (
 	"bytes"
-	"github.com/arstevens/go-libhive-core/security"
+
 	"github.com/arstevens/go-libhive-core/message"
+	"github.com/arstevens/go-libhive-core/security"
 	"github.com/libp2p/go-libp2p-core/crypto"
 )
 
 const (
-	ConsensusType = "consensus"
+	ConsensusType   = "consensus"
 	PropogationType = "propogation"
 )
-
-type identityPacket struct {
-	value []byte
-	sign []byte
-}
 
 // @return: % of verified subnet consensus, % of subnet verified, error
 func BasicConsensus(subnet *Group, value []byte) (float32, float32, error) {
@@ -50,31 +46,25 @@ func BasicConsensus(subnet *Group, value []byte) (float32, float32, error) {
 	}
 
 	// Parse raw bytes
-	vPackets := make([]identityPacket, len(nodes))
-	nodeResp, err := respMsg.ReadUntil(0x03)
-	nPackets := 0
-	for err != nil && nPackets < len(vPackets) {
-		vPackets[i] = identityPacket{
-			value: nodeResp[:len(value)],
-			sign: nodeResp[len(value):],
-		}
-		nodeResp, err = respMsg.ReadUntil(0x03)
-		nPackets += 1
+	layers, err := message.Decapsulate(respMsg)
+	signedValues := make([]message.SignedValue, len(nodes))
+	for _, capsule := range layers {
+		signedValues[i] = capsule.SignedValue()
 	}
 
 	// Calculate consensus scores
 	nVerified := 0
 	nConsensus := 0
 	for i, pKey := range keys {
-		vPacket := vPackets[i]
-		verified, err := pKey.Verify(vPacket.value, vPacket.sign)
+		sVal := signedValues[i]
+		verified, err := pKey.Verify(sVal.value, sVal.sign)
 		if err != nil {
 			return nVerified, nConsensus, err
 		}
 
 		if verified {
 			nVerified += 1
-			if bytes.Equal(value, vPacket.value) {
+			if bytes.Equal(value, sVal.value) {
 				nConsensus += 1
 			}
 		}

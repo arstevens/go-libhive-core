@@ -13,12 +13,17 @@ const (
 )
 
 const (
-	TypeField    = "trans"
-	ConvIdField  = "convid"
-	MsgIdField   = "msgid"
-	DataLenField = "dlen"
-	IdentifyField = "ident"
+	TypeField      = "trans"
+	ConvIdField    = "convid"
+	MsgIdField     = "msgid"
+	DataLenField   = "dlen"
+	SignValueField = "signed"
 )
+
+type SignedValue struct {
+	value []byte
+	sign  []byte
+}
 
 type MessageHeader struct {
 	header map[string]interface{}
@@ -50,11 +55,11 @@ func NewBufferedMessageHeader(in io.Reader) *MessageHeader {
 }
 
 // Accessors
-func (m *MessageHeader) Type() int {
-	mType, ok := (m.header[TypeField]).(int)
+func (m *MessageHeader) Type() string {
+	mType, ok := (m.header[TypeField]).(string)
 	if !ok {
 		fmt.Println("Could not assert TypeField to Int in Message")
-		return -1
+		return ""
 	}
 
 	return mType
@@ -85,6 +90,15 @@ func (m *MessageHeader) DataLen() int64 {
 		return -1
 	}
 	return dLen
+}
+
+func (m *MessageHeader) SignedValue() *SignedValue {
+	sVal, ok := m.header[SignValueField].(SignedValue)
+	if !ok {
+		fmt.Println("Could not assert SignValueField")
+		return nil
+	}
+	return &sVal
 }
 
 // Marshaling
