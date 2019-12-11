@@ -12,7 +12,7 @@ const (
 	PropogationType = "propogation"
 )
 
-type verifPacket struct {
+type identityPacket struct {
 	value []byte
 	sign []byte
 }
@@ -50,11 +50,11 @@ func BasicConsensus(subnet *Group, value []byte) (float32, float32, error) {
 	}
 
 	// Parse raw bytes
-	vPackets := make([]verifPacket, len(nodes))
+	vPackets := make([]identityPacket, len(nodes))
 	nodeResp, err := respMsg.ReadUntil(0x03)
 	nPackets := 0
 	for err != nil && nPackets < len(vPackets) {
-		vPackets[i] = verifPacket{
+		vPackets[i] = identityPacket{
 			value: nodeResp[:len(value)],
 			sign: nodeResp[len(value):],
 		}
@@ -88,6 +88,7 @@ func BasicConsensus(subnet *Group, value []byte) (float32, float32, error) {
 	respMsg.setHeader(message.NewMessageHeader(pmHeaderMap))
 
 	// add origin/chain of custody to reduce redundant transmissions
+	// Use message encapsulation for Chain of Custody?
 	err = entryConn.WriteReader(respMsg)
 	if err != nil {
 		return 0.0, 0.0, err

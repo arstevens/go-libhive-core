@@ -17,6 +17,7 @@ const (
 	ConvIdField  = "convid"
 	MsgIdField   = "msgid"
 	DataLenField = "dlen"
+	IdentifyField = "ident"
 )
 
 type MessageHeader struct {

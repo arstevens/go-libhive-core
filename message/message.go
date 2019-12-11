@@ -55,6 +55,14 @@ func (m *Message) SetHeader(h *MessageHeader) {
 	m.header = h
 }
 
+func (m *Message) Body() *os.File {
+	return m.body
+}
+
+func (m *Message) SetBody(r io.Reader) {
+	m = NewMessage(m.header, r)
+}
+
 
 func (m *Message) Reset() error {
 	err := m.body.Close()
