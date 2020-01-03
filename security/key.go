@@ -50,7 +50,7 @@ func RetrieveLocalPrivateKey() (*crypto.RsaPrivateKey, error) {
 	}
 
 	identity := result["Identity"].(map[string]interface{})
-	sk := identity["PrivateKey"].(string)
+	sk := identity["PrivKey"].(string)
 
 	protoSK, err := base64.StdEncoding.DecodeString(sk)
 	if err != nil {
