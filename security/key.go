@@ -80,7 +80,7 @@ func RetrievePublicKey(sh *ipfsapi.Shell, peerID string) (*RsaPublicKey, error) 
 		fmt.Println("here1")
 		return nil, err
 	}
-	rawPubKey := []byte(idOut.PublicKey)
+	rawPubKey := []byte("-----BEGIN PUBLIC KEY----- \n" + idOut.PublicKey + "\n-----END PUBLIC KEY-----")
 
 	pubKey, err := UnmarshalRsaPublicKey(rawPubKey)
 	fmt.Println("here3")
