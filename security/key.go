@@ -7,7 +7,10 @@ import (
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
+	"encoding/pem"
 	"errors"
+	"fmt"
+	"log"
 
 	ipfsapi "github.com/ipfs/go-ipfs-api"
 )
@@ -53,7 +56,12 @@ func (pk *RsaPublicKey) Verify(data, sig []byte) (bool, error) {
 
 // UnmarshalRsaPublicKey returns a public key from the input x509 bytes
 func UnmarshalRsaPublicKey(b []byte) (*RsaPublicKey, error) {
-	pub, err := x509.ParsePKIXPublicKey(b)
+	block, _ := pem.Decode(b)
+	if block == nil {
+		log.Fatal("Could not get pem block")
+	}
+
+	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
@@ -70,14 +78,17 @@ func UnmarshalRsaPublicKey(b []byte) (*RsaPublicKey, error) {
 func RetrievePublicKey(sh *ipfsapi.Shell, peerID string) (*RsaPublicKey, error) {
 	idOut, err := sh.ID(peerID)
 	if err != nil {
+		fmt.Println("here1")
 		return nil, err
 	}
 	rawPubKey := idOut.PublicKey
 	protoPubKey, err := base64.StdEncoding.DecodeString(rawPubKey)
 	if err != nil {
+		fmt.Println("here2")
 		return nil, err
 	}
 
 	pubKey, err := UnmarshalRsaPublicKey(protoPubKey)
+	fmt.Println("here3")
 	return pubKey, err
 }
