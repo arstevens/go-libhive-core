@@ -9,7 +9,7 @@ import (
 
 func main() {
 	sh := ipfsapi.NewLocalShell()
-	_, err := security.RetrievePublicKey(sh, "QmadRNcr9cdaqaDFCmj7VfSTzUN6pwZFCs7952bRTnE5qF")
+	_, err := security.RetrieveLocalPrivateKey()
 	if err != nil {
 		log.Fatal(err)
 	}
