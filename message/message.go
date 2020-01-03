@@ -2,14 +2,13 @@ package message
 
 import (
 	"bufio"
+	"crypto/rsa"
 	"crypto/sha1"
 	"encoding/base64"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
-
-	crypto "github.com/libp2p/go-libp2p-crypto"
 )
 
 const (
@@ -23,7 +22,7 @@ type Message struct {
 	readPtr   int
 }
 
-func NewMessage(h *MessageHeader, pk crypto.PrivKey, r io.Reader) (*Message, error) {
+func NewMessage(h *MessageHeader, pk rsa.PrivateKey, r io.Reader) (*Message, error) {
 	// Create buffer file used for message resets
 	bodyFile, err := ioutil.TempFile(os.TempDir(), "msgbuf")
 	if err != nil {
@@ -108,7 +107,7 @@ func ReadMessage(in io.Reader) (*Message, error) {
 	return &m, nil
 }
 
-func (m *Message) Verify(k crypto.PubKey) bool {
+func (m *Message) Verify(k rsa.PublicKey) bool {
 	// Calculate a hash value for the body
 	m.Reset()
 	hash, err := hashFile(m.body)
