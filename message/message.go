@@ -166,7 +166,7 @@ func (m *Message) Read(b []byte) (int, error) {
 				return n, err
 			}
 			m.readPtr += bufIdx + n
-			return n, nil
+			return n + bufIdx, nil
 		}
 	} else { // Read from body
 		n, err := m.body.Read(b)
