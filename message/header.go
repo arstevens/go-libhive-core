@@ -13,17 +13,16 @@ const (
 )
 
 const (
-	TypeField      = "trans"
-	ConvIdField    = "convid"
-	MsgIdField     = "msgid"
-	DataLenField   = "dlen"
-	SignValueField = "signed"
+	TypeField    = "trans"
+	ConvIdField  = "convid"
+	MsgIdField   = "msgid"
+	DataLenField = "dlen"
+	SignField    = "sign"
 )
 
-type SignedValue struct {
-	value []byte
-	sign  []byte
-}
+const (
+	EndOfHeader = 0x04
+)
 
 type MessageHeader struct {
 	header map[string]interface{}
@@ -35,13 +34,12 @@ func NewMessageHeader(h map[string]interface{}) *MessageHeader {
 	return &msg
 }
 
-func NewBufferedMessageHeader(in io.Reader) *MessageHeader {
+func ReadMessageHeader(in io.Reader) (*MessageHeader, error) {
 	bReader := bufio.NewReader(in)
-	rawData, err := bReader.ReadSlice(byte(0x03))
+	rawData, err := bReader.ReadSlice(byte(EndOfHeader))
 	if err != nil {
 		fmt.Println("Could not read message from io.Reader object")
-		fmt.Println(err.Error())
-		return nil
+		return nil, err
 	}
 
 	msg := MessageHeader{header: nil}
@@ -49,9 +47,9 @@ func NewBufferedMessageHeader(in io.Reader) *MessageHeader {
 	if err != nil {
 		fmt.Println("Could not unmarshal bytes read into Message")
 		fmt.Println(err.Error())
-		return nil
+		return nil, err
 	}
-	return &msg
+	return &msg, nil
 }
 
 // Accessors
@@ -83,8 +81,8 @@ func (m *MessageHeader) MsgId() int {
 	return mId
 }
 
-func (m *MessageHeader) DataLen() int64 {
-	dLen, ok := (m.header[DataLenField]).(int64)
+func (m *MessageHeader) DataLen() int {
+	dLen, ok := (m.header[DataLenField]).(int)
 	if !ok {
 		fmt.Println("Could not assert DataLenField to Int64 in Message")
 		return -1
@@ -92,13 +90,13 @@ func (m *MessageHeader) DataLen() int64 {
 	return dLen
 }
 
-func (m *MessageHeader) SignedValue() *SignedValue {
-	sVal, ok := m.header[SignValueField].(SignedValue)
+func (m *MessageHeader) MessageSign() string {
+	sVal, ok := m.header[SignField].(string)
 	if !ok {
-		fmt.Println("Could not assert SignValueField")
-		return nil
+		fmt.Println("Could not assert SignField")
+		return ""
 	}
-	return &sVal
+	return sVal
 }
 
 // Marshaling
@@ -124,5 +122,5 @@ func (m *MessageHeader) Unmarshal(raw []byte) error {
 
 // Prep for Sending
 func PackageBytes(msg []byte) []byte {
-	return append(msg, 0x03)
+	return append(msg, EndOfHeader)
 }

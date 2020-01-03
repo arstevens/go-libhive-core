@@ -11,8 +11,10 @@ func Decapsulate(msg *Message) ([]*Message, error) {
 	mBody := curMsg.Body()
 	layers = append(layers, curMsg)
 	for curMsg.Header().Type() == "capsule" {
-		nHeader := NewBufferedMessageHeader(mBody)
-		curMsg = NewMessage(nHeader, mBody)
+		curMsg, err := ReadMessage(mBody)
+		if err != nil {
+			return layers, err
+		}
 		mBody = curMsg.Body()
 		layers = append(layers, curMsg)
 	}

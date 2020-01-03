@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+
+	"github.com/arstevens/go-libhive-core/message"
 )
 
 const (
@@ -29,7 +31,7 @@ func NewContract(ident string, serv int, tkT map[string]float64, tkE map[string]
 
 func NewBufferedContract(in io.Reader) *Contract {
 	bReader := bufio.NewReader(in)
-	rawData, err := bReader.ReadSlice(byte(0x03))
+	rawData, err := bReader.ReadSlice(byte(message.EndOfHeader))
 	if err != nil {
 		fmt.Println("Could not read contract from io.Reader object")
 		fmt.Println(err.Error())
