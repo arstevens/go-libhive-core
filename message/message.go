@@ -23,7 +23,7 @@ type Message struct {
 	readPtr   int
 }
 
-func NewMessage(h *MessageHeader, sk crypto.RsaPrivateKey, r io.Reader) (*Message, error) {
+func NewMessage(h *MessageHeader, sk *crypto.RsaPrivateKey, r io.Reader) (*Message, error) {
 	// Create buffer file used for message resets
 	bodyFile, err := ioutil.TempFile(os.TempDir(), "msgbuf")
 	if err != nil {
@@ -109,7 +109,7 @@ func ReadMessage(in io.Reader) (*Message, error) {
 	return &m, nil
 }
 
-func (m *Message) Verify(k crypto.RsaPublicKey) bool {
+func (m *Message) Verify(k *crypto.RsaPublicKey) bool {
 	// Calculate a hash value for the body
 	m.Reset()
 	hash, err := hashFile(m.body)
@@ -124,10 +124,7 @@ func (m *Message) Verify(k crypto.RsaPublicKey) bool {
 	}
 
 	// Verify the message
-	verf, err := k.Verify(hash, sign)
-	if err != nil {
-		log.Fatal(err)
-	}
+	verf, _ := k.Verify(hash, sign)
 	return verf
 }
 
