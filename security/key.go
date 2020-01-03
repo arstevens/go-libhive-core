@@ -6,7 +6,6 @@ import (
 	"crypto/rsa"
 	"crypto/sha256"
 	"crypto/x509"
-	"encoding/base64"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -81,14 +80,9 @@ func RetrievePublicKey(sh *ipfsapi.Shell, peerID string) (*RsaPublicKey, error) 
 		fmt.Println("here1")
 		return nil, err
 	}
-	rawPubKey := "-----BEGIN PUBLIC KEY----- \n" + idOut.PublicKey + "\n-----END PUBLIC KEY-----"
-	protoPubKey, err := base64.StdEncoding.DecodeString(rawPubKey)
-	if err != nil {
-		fmt.Println("here2")
-		return nil, err
-	}
+	rawPubKey := []byte(idOut.PublicKey)
 
-	pubKey, err := UnmarshalRsaPublicKey(protoPubKey)
+	pubKey, err := UnmarshalRsaPublicKey(rawPubKey)
 	fmt.Println("here3")
 	return pubKey, err
 }
