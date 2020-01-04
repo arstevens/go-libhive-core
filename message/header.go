@@ -37,6 +37,7 @@ func NewMessageHeader(h map[string]interface{}) *MessageHeader {
 func ReadMessageHeader(in io.Reader) (*MessageHeader, error) {
 	bReader := bufio.NewReader(in)
 	rawData, err := bReader.ReadBytes(byte(EndOfHeader))
+	rawData = rawData[:len(rawData)-1]
 	fmt.Println(rawData)
 	if err != nil {
 		fmt.Println("Could not read message from io.Reader object")
