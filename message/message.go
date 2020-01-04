@@ -1,7 +1,6 @@
 package message
 
 import (
-	"bufio"
 	"crypto/sha1"
 	"encoding/base64"
 	"io"
@@ -147,6 +146,7 @@ func (m *Message) Body() *os.File {
 
 func (m *Message) Reset() error {
 	_, err := m.body.Seek(0, io.SeekStart)
+	m.readPtr = 0
 	return err
 }
 
@@ -173,11 +173,6 @@ func (m *Message) Read(b []byte) (int, error) {
 		m.readPtr += n
 		return n, err
 	}
-}
-
-func (m *Message) ReadUntil(b byte) ([]byte, error) {
-	r := bufio.NewReader(m.body)
-	return r.ReadSlice(b)
 }
 
 func hashFile(f *os.File) ([]byte, error) {

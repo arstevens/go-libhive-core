@@ -36,7 +36,8 @@ func NewMessageHeader(h map[string]interface{}) *MessageHeader {
 
 func ReadMessageHeader(in io.Reader) (*MessageHeader, error) {
 	bReader := bufio.NewReader(in)
-	rawData, err := bReader.ReadSlice(byte(EndOfHeader))
+	rawData, err := bReader.ReadBytes(byte(EndOfHeader))
+	fmt.Println(rawData)
 	if err != nil {
 		fmt.Println("Could not read message from io.Reader object")
 		return nil, err
@@ -107,7 +108,7 @@ func (m *MessageHeader) Marshal() []byte {
 		fmt.Println(err.Error())
 		return []byte{}
 	}
-	return []byte(jsonString)
+	return PackageBytes([]byte(jsonString))
 }
 
 func (m *MessageHeader) Unmarshal(raw []byte) error {
