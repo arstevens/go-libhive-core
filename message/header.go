@@ -18,6 +18,7 @@ const (
 	MsgIdField   = "msgid"
 	DataLenField = "dlen"
 	SignField    = "sign"
+	CapsuleField = "cap"
 )
 
 const (
@@ -60,6 +61,15 @@ func (m *MessageHeader) Type() string {
 		return ""
 	}
 
+	return mType
+}
+
+func (m *MessageHeader) IsCapsule() bool {
+	mType, ok := m.header[CapsuleField].(bool)
+	if !ok {
+		fmt.Println("Could not assert CapsuleField to bool in message")
+		return false
+	}
 	return mType
 }
 

@@ -32,6 +32,7 @@ func main() {
 
 	h2 := make(map[string]interface{})
 	h2[message.TypeField] = message.QueryType
+	h2[message.CapsuleField] = true
 
 	msg2, err := message.NewMessage(message.NewMessageHeader(h2), sk, msg)
 	if err != nil {
@@ -45,6 +46,7 @@ func main() {
 		n, err = msg2.Read(buf)
 		fmt.Print(string(buf[:n]))
 	}
+	msg2.Reset()
 
 	fmt.Println("\n---------------------- DECAPSULATE RUN ----------------------")
 	msgs, err := message.Decapsulate(msg2)
