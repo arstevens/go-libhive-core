@@ -6,11 +6,12 @@ func Decapsulate(msg *Message) ([]*Message, error) {
 	layers := make([]*Message, 0)
 
 	curMsg := msg
+	var err error
 	mBody := curMsg.Body()
 	layers = append(layers, curMsg)
 	for curMsg.Header().IsCapsule() {
 		fmt.Println(curMsg.Body().Name())
-		curMsg, err := ReadMessage(mBody)
+		curMsg, err = ReadMessage(mBody)
 		if err != nil {
 			return layers, err
 		}
