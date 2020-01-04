@@ -114,7 +114,7 @@ func (m *MessageHeader) Marshal() []byte {
 
 func (m *MessageHeader) Unmarshal(raw []byte) error {
 	m.header = make(map[string]interface{})
-	err := json.Unmarshal(raw, m.header)
+	err := json.Unmarshal(raw, &m.header)
 	if err != nil {
 		fmt.Println("Could not unmarshal data in Message")
 		return err
