@@ -1,7 +1,7 @@
 package group
 
 import (
-	"strings"
+	"sort"
 
 	"github.com/arstevens/go-libhive-core/message"
 	"github.com/arstevens/go-libhive-core/stream"
@@ -9,10 +9,10 @@ import (
 )
 
 type Group struct {
-	nodes     map[string]*stream.Stream
+	nodes          map[string]*node.Node
 	sortedNodeKeys []string
-	subnets   map[string][]string
-	ipfsShell *ipfsapi.Shell
+	subnets        map[string][]string
+	ipfsShell      *ipfsapi.Shell
 }
 
 func NewGroup(sh *ipfsapi.Shell, n map[string]*stream.Stream) *Group {
@@ -38,6 +38,18 @@ func (g *Group) Add(nid string, s *stream.Stream) {
 	g.nodes[nid] = s
 	g.sortedNodeKeys = append(g.sortedNodeKeys, nid)
 	sort.Strings(g.sortedNodeKeys)
+}
+
+func sortMap(m map[string]*node) []string {
+	sorted := make([]string, len(m))
+	i := 0
+	for k, _ := range m {
+		sorted[i] = k
+		i++
+	}
+	sort.Strings(sorted)
+
+	return sorted
 }
 
 func (g *Group) SortedKeys() []string {
@@ -98,6 +110,6 @@ func (g *Group) EntryNode() (string, *stream.Stream) {
 }
 
 func (g *Group) ExitNode() (string, *stream.Stream) {
-	nid := g.sortedNodeKeys[len(g.sortedNodeKeys) - 1]
+	nid := g.sortedNodeKeys[len(g.sortedNodeKeys)-1]
 	return nid, g.nodes[nid]
 }

@@ -2,6 +2,7 @@ package group
 
 import (
 	"bytes"
+	"log"
 
 	"github.com/arstevens/go-libhive-core/message"
 	"github.com/arstevens/go-libhive-core/security"
@@ -13,36 +14,59 @@ const (
 	PropogationType = "propogation"
 )
 
+func accumulateSubnetResponse(subnet *Group, msg *message.Message) ([]*message.Message, error) {
+	// Start communication loop
+	_, entryConn := subnet.EntryNode()
+	err := entryConn.WriteReader(msg)
+	defer entryConn.Close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	// End communication loop
+	_, exitConn := subnet.ExitNode()
+	respMsg, err := message.ReadMessage(exitConn)
+	if err != nil {
+		return nil, err
+	}
+
+	// Parse raw bytes
+	return message.Decapsulate(respMsg)
+}
+
 // @return: % of verified subnet consensus, % of subnet verified, error
-func BasicConsensus(subnet *Group, value []byte) (float32, float32, error) {
+func BinaryConsensus(subnet *Group, sk *crypto.RsaPrivateKey, value []byte) (float32, float32, error) {
 	// Create Message
 	hMap := make(map[string]interface{})
 	hMap[message.TypeField] = ConsensusType
 	hMap[message.DataLenField] = len(value)
 	header := message.NewMessageHeader(hMap)
 	valueReader := bytes.NewReader(value)
-	msg := message.NewMessage(header, valueReader)
-
-	// Start communication loop
-	_, entryConn := subnet.EntryNode()
-	err := conn.WriteReader(msg)
-	defer entryConn.Close()
-
-	// End communication loop
-	_, exitConn := subnet.ExitNode()
-	rHeader := NewBufferedMessageHeader(exitConn)
-	respMsg := NewMessage(rHeader, exitConn)
+	msg, err := message.NewMessage(header, sk, valueReader)
 
 	// Grab public keys from subnet
 	// TODO: May want to run this in seperate goroutine while waiting for ECL
 	nodes := subnet.SortedKeys()
-	keys := make([]crypto.RsaPublicKey, len(nodes))
+	keys := make([]*crypto.RsaPublicKey, len(nodes))
 	for i, k := range nodes {
-		pubKey, err := security.RetrievePublicKey(g.GetShell(), k)
+		pubKey, err := security.RetrievePublicKey(subnet.GetShell(), k)
 		if err != nil {
 			return 0.0, 0.0, err
 		}
 		keys[i] = pubKey
+	}
+
+	// Start communication loop
+	_, entryConn := subnet.EntryNode()
+	err = entryConn.WriteReader(msg)
+	defer entryConn.Close()
+
+	// End communication loop
+	_, exitConn := subnet.ExitNode()
+	respMsg, err := message.ReadMessage(exitConn)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	// Parse raw bytes
