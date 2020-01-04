@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"reflect"
 )
 
 const (
@@ -85,14 +84,12 @@ func (m *MessageHeader) MsgId() int {
 }
 
 func (m *MessageHeader) DataLen() int {
-	dLen, ok := m.header[DataLenField].(int)
-	fmt.Println(reflect.TypeOf(m.header[DataLenField]))
-	fmt.Println(m.header[DataLenField])
+	dLen, ok := m.header[DataLenField].(float64)
 	if !ok {
 		fmt.Println("Could not assert DataLenField to Int in Message")
 		return -1
 	}
-	return dLen
+	return int(dLen)
 }
 
 func (m *MessageHeader) MessageSign() string {
