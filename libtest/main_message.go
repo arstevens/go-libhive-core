@@ -49,6 +49,15 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(nmsg)
+
+	n, err = nmsg.Read(buf)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Print(string(buf[:n]))
+	for n > 0 {
+		n, err = nmsg.Read(buf)
+		fmt.Print(string(buf[:n]))
+	}
 
 }
