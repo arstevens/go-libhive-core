@@ -92,8 +92,10 @@ func (m *MessageHeader) MsgId() int {
 }
 
 func (m *MessageHeader) DataLen() int {
-	dLen := int(reflect.ValueOf(m.header[DataLenField]).Int())
-	return int(dLen)
+	val := reflect.ValueOf(m.header[DataLenField])
+	iVal := val.Convert(reflect.TypeOf(0))
+
+	return int(iVal.Int())
 }
 
 func (m *MessageHeader) MessageSign() string {
