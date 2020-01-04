@@ -3,6 +3,7 @@ package message
 import (
 	"crypto/sha1"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -101,6 +102,7 @@ func ReadMessage(in io.Reader) (*Message, error) {
 			return nil, err
 		}
 		tRead += nIn
+		fmt.Println(tRead)
 	}
 	bodyFile.Seek(0, io.SeekStart)
 
