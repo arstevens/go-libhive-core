@@ -85,6 +85,10 @@ func (m *MessageHeader) MsgId() int {
 
 func (m *MessageHeader) DataLen() int {
 	dLen, ok := m.header[DataLenField].(int)
+	fmt.Println(m.header[DataLenField])
+	dLen2, ok := m.header[DataLenField].(string)
+	fmt.Println(ok)
+	fmt.Println(dLen2)
 	if !ok {
 		fmt.Println("Could not assert DataLenField to Int in Message")
 		return -1
