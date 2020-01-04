@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -31,33 +30,29 @@ func main() {
 		log.Fatal(err)
 	}
 
-	data := ""
+	h2 := make(map[string]interface{})
+	h2[message.TypeField] = message.QueryType
+
+	msg2, err := message.NewMessage(message.NewMessageHeader(h2), sk, msg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	buf := make([]byte, 8)
-	n, err := msg.Read(buf)
-	if err != nil {
-		log.Fatal(err)
-	}
-	data += string(buf[:n])
-	for n > 0 {
-		n, err = msg.Read(buf)
-		data += string(buf[:n])
-	}
-
-	ioutil.WriteFile("/home/aleksandr/testfile", []byte(data), os.ModePerm)
-	f2, _ := os.Open("/home/aleksandr/testfile")
-	nmsg, err := message.ReadMessage(f2)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	n, err = nmsg.Read(buf)
-	if err != nil {
-		log.Fatal(err)
-	}
+	n, err := msg2.Read(buf)
 	fmt.Print(string(buf[:n]))
 	for n > 0 {
-		n, err = nmsg.Read(buf)
+		n, err = msg2.Read(buf)
 		fmt.Print(string(buf[:n]))
 	}
 
+	fmt.Println("\n---------------------- DECAPSULATE RUN ----------------------")
+	msgs, err := message.Decapsulate(msg2)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, m := range msgs {
+		fmt.Println(m.Header().DataLen())
+	}
 }

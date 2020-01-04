@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"reflect"
 )
 
 const (
@@ -81,11 +82,7 @@ func (m *MessageHeader) MsgId() int {
 }
 
 func (m *MessageHeader) DataLen() int {
-	dLen, ok := m.header[DataLenField].(float64)
-	if !ok {
-		fmt.Println("Could not assert DataLenField to Int in Message")
-		return -1
-	}
+	dLen := int(reflect.ValueOf(m.header[DataLenField]).Int())
 	return int(dLen)
 }
 
