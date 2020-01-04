@@ -37,9 +37,6 @@ func NewMessageHeader(h map[string]interface{}) *MessageHeader {
 
 func ReadMessageHeader(in *bufio.Reader) (*MessageHeader, error) {
 	rawData, err := in.ReadBytes(byte(EndOfHeader))
-	fmt.Println(rawData)
-	fmt.Println(string(rawData))
-	fmt.Println(hasEOT(rawData))
 	rawData = rawData[:len(rawData)-1]
 	if err != nil {
 		fmt.Println("Could not read message from io.Reader object")
@@ -54,14 +51,6 @@ func ReadMessageHeader(in *bufio.Reader) (*MessageHeader, error) {
 		return nil, err
 	}
 	return &msg, nil
-}
-func hasEOT(b []byte) bool {
-	for i := 0; i < len(b); i++ {
-		if b[i] == 0x04 {
-			return true
-		}
-	}
-	return false
 }
 
 // Accessors
@@ -78,7 +67,6 @@ func (m *MessageHeader) Type() string {
 func (m *MessageHeader) IsCapsule() bool {
 	mType, ok := m.header[CapsuleField].(bool)
 	if !ok {
-		fmt.Println("Could not assert CapsuleField to bool in message")
 		return false
 	}
 	return mType
