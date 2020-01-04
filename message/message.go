@@ -1,9 +1,9 @@
 package message
 
 import (
+	"bufio"
 	"crypto/sha1"
 	"encoding/base64"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -73,7 +73,8 @@ func NewMessage(h *MessageHeader, sk *crypto.RsaPrivateKey, r io.Reader) (*Messa
 
 func ReadMessage(in io.Reader) (*Message, error) {
 	// Read Message header first
-	head, err := ReadMessageHeader(in)
+	reader := bufio.NewReader(in)
+	head, err := ReadMessageHeader(reader)
 	if err != nil {
 		return nil, err
 	}
@@ -96,13 +97,12 @@ func ReadMessage(in io.Reader) (*Message, error) {
 			buf = buf[:bytesLeft]
 		}
 
-		nIn, _ = in.Read(buf)
+		nIn, _ = reader.Read(buf)
 		_, err = bodyFile.Write(buf[:nIn])
 		if err != nil {
 			return nil, err
 		}
 		tRead += nIn
-		fmt.Println(tRead)
 	}
 	bodyFile.Seek(0, io.SeekStart)
 

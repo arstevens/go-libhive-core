@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"io"
 )
 
 const (
@@ -34,9 +33,8 @@ func NewMessageHeader(h map[string]interface{}) *MessageHeader {
 	return &msg
 }
 
-func ReadMessageHeader(in io.Reader) (*MessageHeader, error) {
-	bReader := bufio.NewReader(in)
-	rawData, err := bReader.ReadBytes(byte(EndOfHeader))
+func ReadMessageHeader(in *bufio.Reader) (*MessageHeader, error) {
+	rawData, err := in.ReadBytes(byte(EndOfHeader))
 	rawData = rawData[:len(rawData)-1]
 	if err != nil {
 		fmt.Println("Could not read message from io.Reader object")
