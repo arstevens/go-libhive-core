@@ -16,6 +16,10 @@ type LocalNode struct {
 	privKey *crypto.RsaPrivateKey
 }
 
+func NewLocalNode(id string, sk *crypto.RsaPrivateKey) *LocalNode {
+	return &LocalNode{id: id, privKey: sk}
+}
+
 func (ln LocalNode) Id() string {
 	return ln.id
 }
@@ -29,6 +33,10 @@ type RemoteNode struct {
 	id     string
 	stream *stream.Stream
 	pubKey *crypto.RsaPublicKey
+}
+
+func NewRemoteNode(id string, stream *stream.Stream, pk *crypto.RsaPublicKey) *RemoteNode {
+	return &RemoteNode{id: id, stream: stream, pubKey: pk}
 }
 
 func (rn RemoteNode) Id() string {
