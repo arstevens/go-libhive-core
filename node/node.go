@@ -5,15 +5,26 @@ import (
 	crypto "github.com/libp2p/go-libp2p-crypto"
 )
 
+// Consolodate values associated with a node
 type Node struct {
-	conn *stream.Stream
-	pk   *crypto.RsaPublicKey
+	Id     string
+	Stream *stream.Stream
+	PubKey *crypto.RsaPublicKey
 }
 
-func (n *Node) Key() *crypto.RsaPublicKey {
-	return n.pk
+// Slice of Nodes that implements sort.Interface
+type Nodes []Node
+
+func (ns Nodes) Len() int {
+	return len(ns)
 }
 
-func (n *Node) Conn() *stream.Stream {
-	return n.conn
+func (ns Nodes) Less(i int, j int) bool {
+	return ns[i].Id < ns[j].Id
+}
+
+func (ns Nodes) Swap(i int, j int) {
+	tmp := ns[i]
+	ns[i] = ns[j]
+	ns[j] = tmp
 }

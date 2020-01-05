@@ -1,8 +1,7 @@
-package group
+package consensus
 
 import (
 	"bytes"
-	"log"
 
 	"github.com/arstevens/go-libhive-core/message"
 	"github.com/arstevens/go-libhive-core/security"
@@ -57,24 +56,8 @@ func BinaryConsensus(subnet *Group, sk *crypto.RsaPrivateKey, value []byte) (flo
 		keys[i] = pubKey
 	}
 
-	// Start communication loop
-	_, entryConn := subnet.EntryNode()
-	err = entryConn.WriteReader(msg)
-	defer entryConn.Close()
-
-	// End communication loop
-	_, exitConn := subnet.ExitNode()
-	respMsg, err := message.ReadMessage(exitConn)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Parse raw bytes
-	layers, err := message.Decapsulate(respMsg)
-	signedValues := make([]message.SignedValue, len(nodes))
-	for _, capsule := range layers {
-		signedValues[i] = capsule.SignedValue()
-	}
+	// Retrieve messages from the network
+	layers, err := accumulateSubnetResponse(subnet, msg)
 
 	// Calculate consensus scores
 	nVerified := 0
