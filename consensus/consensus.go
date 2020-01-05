@@ -4,6 +4,7 @@ import (
 	"bytes"
 
 	"github.com/arstevens/go-libhive-core/message"
+	"github.com/arstevens/go-libhive-core/node"
 	"github.com/arstevens/go-libhive-core/security"
 	"github.com/libp2p/go-libp2p-core/crypto"
 )
@@ -13,7 +14,8 @@ const (
 	PropogationType = "propogation"
 )
 
-func accumulateSubnetResponse(subnet *Group, msg *message.Message) ([]*message.Message, error) {
+func accumulateSubnetResponse(myNid string, subnet *node.Nodes, msg *message.Message) ([]*message.Message, error) {
+	entryNode, exitNode := subnet.FindNeighbors(Node{Id: myNid})
 	// Start communication loop
 	_, entryConn := subnet.EntryNode()
 	err := entryConn.WriteReader(msg)
