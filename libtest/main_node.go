@@ -28,4 +28,8 @@ func main() {
 	printNodes(nodes)
 	l, r := nodes.FindNeighbors(ln)
 	fmt.Println((*l).Id() + " " + (*r).Id())
+
+	nodes = append(nodes, ln)
+	sort.Sort(nodes)
+	printNodes(nodes)
 }
