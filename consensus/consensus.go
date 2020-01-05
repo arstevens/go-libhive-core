@@ -14,19 +14,19 @@ const (
 	PropogationType = "propogation"
 )
 
-func accumulateSubnetResponse(myNid string, subnet *node.Nodes, msg *message.Message) ([]*message.Message, error) {
-	entryNode, exitNode := subnet.FindNeighbors(Node{Id: myNid})
-	// Start communication loop
-	_, entryConn := subnet.EntryNode()
-	err := entryConn.WriteReader(msg)
-	defer entryConn.Close()
+func accumulateSubnetResponse(myNode LocalNode, subnet node.Nodes, msg *message.Message) ([]*message.Message, error) {
+	// Find neighboring nodes
+	entryNode, exitNode := subnet.FindNeighbors(myNode)
 
+	// Start communication loop
+	entryConn := entryNode.Stream
+	err := entryConn.WriteReader(msg)
 	if err != nil {
 		return nil, err
 	}
 
 	// End communication loop
-	_, exitConn := subnet.ExitNode()
+	exitConn := exitNode.Stream
 	respMsg, err := message.ReadMessage(exitConn)
 	if err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func accumulateSubnetResponse(myNid string, subnet *node.Nodes, msg *message.Mes
 }
 
 // @return: % of verified subnet consensus, % of subnet verified, error
-func BinaryConsensus(subnet *Group, sk *crypto.RsaPrivateKey, value []byte) (float32, float32, error) {
+func BinaryConsensus(subnet node.Nodes, sk *crypto.RsaPrivateKey, value []byte) (float32, float32, error) {
 	// Create Message
 	hMap := make(map[string]interface{})
 	hMap[message.TypeField] = ConsensusType
