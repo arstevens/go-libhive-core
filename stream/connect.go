@@ -6,14 +6,13 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/arstevens/go-libhive-core/protocol"
 	ipfsapi "github.com/ipfs/go-ipfs-api"
 	maddr "github.com/multiformats/go-multiaddr"
 )
 
 // ipfs api libp2p forward and listen functions
-func streamListen(sh *ipfsapi.Shell, proto protocol.ID, addr maddr.Multiaddr) (*net.Listener, error) {
-	resp, err := sh.Request("p2p/listen", proto.String(), addr.String()).Send(context.Background())
+func streamListen(sh *ipfsapi.Shell, proto string, addr maddr.Multiaddr) (*net.Listener, error) {
+	resp, err := sh.Request("p2p/listen", proto, addr.String()).Send(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -32,8 +31,8 @@ func streamListen(sh *ipfsapi.Shell, proto protocol.ID, addr maddr.Multiaddr) (*
 	return &ln, err
 }
 
-func streamForward(sh *ipfsapi.Shell, proto protocol.ID, addr maddr.Multiaddr, nid string) (*net.Conn, error) {
-	resp, err := sh.Request("p2p/forward", proto.String(), addr.String(), "/ipfs/"+nid).Send(context.Background())
+func streamForward(sh *ipfsapi.Shell, proto string, addr maddr.Multiaddr, nid string) (*net.Conn, error) {
+	resp, err := sh.Request("p2p/forward", proto, addr.String(), "/ipfs/"+nid).Send(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +91,7 @@ func parseMultiaddr(addr maddr.Multiaddr) (string, string, error) {
 }
 
 // Removes the libp2p stream listener for 'proto'
-func closeProtoListener(sh *ipfsapi.Shell, proto protocol.ID) error {
-	_, err := sh.Request("p2p/close", "--protocol="+proto.String()).Send(context.Background())
+func closeProtoListener(sh *ipfsapi.Shell, proto string) error {
+	_, err := sh.Request("p2p/close", "--protocol="+proto).Send(context.Background())
 	return err
 }

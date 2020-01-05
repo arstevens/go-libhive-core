@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/arstevens/go-libhive-core/protocol"
 	ipfsapi "github.com/ipfs/go-ipfs-api"
 	maddr "github.com/multiformats/go-multiaddr"
 	"github.com/phayes/freeport"
@@ -20,10 +19,10 @@ type Stream struct {
 	conn     *net.Conn
 	sHandler bool
 	sh       *ipfsapi.Shell
-	proto    protocol.ID
+	proto    string
 }
 
-func wrapConn(c *net.Conn, handler bool, sh *ipfsapi.Shell, proto protocol.ID) Stream {
+func wrapConn(c *net.Conn, handler bool, sh *ipfsapi.Shell, proto string) Stream {
 	return Stream{conn: c, sHandler: handler}
 }
 
@@ -65,14 +64,14 @@ func (s *Stream) WriteReader(r io.Reader) error {
 
 func (s *Stream) Close() error {
 	if !s.isHandler() {
-		(*s).sh.Request("p2p/close", "--protocol="+(*s).proto.String()).Send(context.Background())
+		(*s).sh.Request("p2p/close", "--protocol="+(*s).proto).Send(context.Background())
 	}
 
 	c := *s.getConn()
 	return c.Close()
 }
 
-func NewStream(sh *ipfsapi.Shell, proto protocol.ID, nid string) (*Stream, error) {
+func NewStream(sh *ipfsapi.Shell, proto string, nid string) (*Stream, error) {
 	// Will be replaced by WDS multiaddress cacheing functionality
 	/*
 		fmt.Println("Attempting to establish connection")
@@ -104,7 +103,7 @@ func NewStream(sh *ipfsapi.Shell, proto protocol.ID, nid string) (*Stream, error
 
 // NewStreamHandler should be run in its own go routine
 // NSH runs 'callback' on every new stream that connects to 'proto'
-func NewStreamHandler(sh *ipfsapi.Shell, proto protocol.ID, callback func(s Stream)) {
+func NewStreamHandler(sh *ipfsapi.Shell, proto string, callback func(s Stream)) {
 	fport, err := freeport.GetFreePort()
 	if err != nil {
 		panic(err)
