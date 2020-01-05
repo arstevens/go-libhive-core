@@ -83,6 +83,9 @@ func (ns Nodes) FindNeighbors(n Node) (*Node, *Node) {
 	// Find Neighbors
 	var left Node
 	var right Node
+	left = RemoteNode{id: ""}
+	right = RemoteNode{id: ""}
+
 	for _, node := range ns {
 		if node.Id() > n.Id() {
 			if right.Id() == "" {

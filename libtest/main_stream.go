@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	hproto "github.com/arstevens/go-libhive-core/protocol"
 	hstream "github.com/arstevens/go-libhive-core/stream"
 	ipfsapi "github.com/ipfs/go-ipfs-api"
 )
@@ -21,7 +20,7 @@ func callback(hs hstream.Stream) {
 
 func main() {
 	sh := ipfsapi.NewLocalShell()
-	proto := hproto.NewProtocolId("htest/1.0")
+	proto := "/htest/1.0"
 	// Stream test
 	/*
 		hs, err := hstream.NewStream(sh, proto, os.Args[1])
