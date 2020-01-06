@@ -90,7 +90,7 @@ func parseTransactions(transactionPaths []string) ([]*Transaction, error) {
 			return nil, err
 		}
 
-		curTransaction, err := ParseTransaction(file)
+		curTransaction, err := UnmarshalTransaction(file)
 		if err != nil {
 			return nil, err
 		}

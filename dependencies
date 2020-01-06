@@ -1,7 +1,5 @@
-github.com/arstevens/go-libhive-core/contract
-github.com/arstevens/go-libhive-core/consensus
 github.com/arstevens/go-libhive-core/message
-github.com/arstevens/go-libhive-core/protocol
 github.com/arstevens/go-libhive-core/security
 github.com/arstevens/go-libhive-core/stream
 github.com/arstevens/go-libhive-core/node
+github.com/arstevens/go-libhive-core/track
