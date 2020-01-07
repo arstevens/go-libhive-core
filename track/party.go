@@ -6,9 +6,12 @@ import (
 	"path/filepath"
 )
 
+// Is there a way to have nodes only keep info on selective parties &
+// still enable synchronous consensus?
 type Party struct {
 	id         string
 	fsLocation string
+	history    float64
 }
 
 func (p Party) AddTransaction(t Transaction) error {
@@ -64,7 +67,7 @@ func (p Party) SumTransactions() (float64, error) {
 		return -1.0, err
 	}
 
-	sum := 0.0
+	sum := p.history
 	for _, curTransaction := range transcations {
 		sum += curTransaction.GetAmountExchanged(p.id)
 	}

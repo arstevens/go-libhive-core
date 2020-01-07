@@ -30,7 +30,6 @@ func (t Transaction) GetAmountExchanged(id string) float64 {
 	return t.exchanges[id]
 }
 
-// Serialize a transaction for filesystem storage
 func (t Transaction) Marshal() []byte {
 	serial, err := json.Marshal(t)
 	if err != nil {
