@@ -50,7 +50,7 @@ func NewExchangeGraph(root string) (*ExchangeGraph, error) {
 	return &graph, nil
 }
 
-func (e ExchangeGraph) GetParty(id string) *Party {
+func (e *ExchangeGraph) GetParty(id string) *Party {
 	for _, party := range e.parties {
 		if party.id == id {
 			return party
@@ -60,7 +60,8 @@ func (e ExchangeGraph) GetParty(id string) *Party {
 	return nil
 }
 
-func (e ExchangeGraph) Compress(outpath string) error {
+func (e *ExchangeGraph) Compress(outpath string) error {
+	// Compress transaction histories into single values
 	newHistory := make(map[string]float64)
 	for _, party := range e.parties {
 		sum, err := party.SumTransactions()
@@ -70,10 +71,22 @@ func (e ExchangeGraph) Compress(outpath string) error {
 		newHistory[party.id] = sum
 	}
 
+	// Prepare compressed data and write to disk
 	rawHistory, err := json.Marshal(newHistory)
 	if err != nil {
 		return err
 	}
 
 	return ioutil.WriteFile(outpath, rawHistory, 0466) // r--rw-rw-
+}
+
+// Clears all transactions in root directory. Ignores history file
+func (e *ExchangeGraph) DeleteTransactions() error {
+	for _, party := range e.parties {
+		err := os.Remove(party.fsLocation)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
