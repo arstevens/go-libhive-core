@@ -14,16 +14,15 @@ var (
 // exchanges graphs should be created on the fly and deleted after use due to the
 // amount of memory they take up in the processes memory
 type ExchangeGraph struct {
-	history map[string]float64
-	parties []Party
+	parties []*Party
 }
 
 func NewExchangeGraph(root string) (*ExchangeGraph, error) {
 	var graph ExchangeGraph
 	partyDirs := readDirectory(root)
-	graph.parties = make([]Party, len(partyDirs))
+	graph.parties = make([]*Party, len(partyDirs))
 	for i, partyDir := range partyDirs {
-		graph.parties[i] = Party{id: filepath.Base(partyDir), fsLocation: partyDir}
+		graph.parties[i] = &Party{id: filepath.Base(partyDir), fsLocation: partyDir}
 	}
 
 	hFile, err := os.Open(HistoryFile)
@@ -32,15 +31,20 @@ func NewExchangeGraph(root string) (*ExchangeGraph, error) {
 	}
 	defer hFile.Close()
 
+	// Read starting values for each party
 	rawHistory, err := ioutil.ReadAll(hFile)
 	if err != nil {
 		return nil, err
 	}
-
-	graph.history = make(map[string]float64)
-	err = json.Unmarshal(rawHistory, &graph.history)
+	history := make(map[string]float64)
+	err = json.Unmarshal(rawHistory, &history)
 	if err != nil {
 		return nil, err
+	}
+
+	// Store starting values in Party objects
+	for _, party := range graph.parties {
+		party.history = history[party.id]
 	}
 
 	return &graph, nil
@@ -49,9 +53,27 @@ func NewExchangeGraph(root string) (*ExchangeGraph, error) {
 func (e ExchangeGraph) GetParty(id string) *Party {
 	for _, party := range e.parties {
 		if party.id == id {
-			return &party
+			return party
 		}
 	}
 
 	return nil
+}
+
+func (e ExchangeGraph) Compress(outpath string) error {
+	newHistory := make(map[string]float64)
+	for _, party := range e.parties {
+		sum, err := party.SumTransactions()
+		if err != nil {
+			return err
+		}
+		newHistory[party.id] = sum
+	}
+
+	rawHistory, err := json.Marshal(newHistory)
+	if err != nil {
+		return err
+	}
+
+	return ioutil.WriteFile(outpath, rawHistory, 0466) // r--rw-rw-
 }
