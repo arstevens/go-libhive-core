@@ -1,13 +1,15 @@
 package track
 
-import (
-	"encoding/json"
-	"io"
-	"io/ioutil"
-	"log"
-	"time"
-)
+// need to make transaction an interface to allow different type of
+// datapoints to be stored(aka WDS information)
+type Transaction interface {
+	Id() string
+	Parties() []string
+	Marshal() []byte
+	GetAmountExchanged(string) float64
+}
 
+/*
 type Transaction struct {
 	transactionId string
 	exchanges     map[string]float64
@@ -49,3 +51,4 @@ func UnmarshalTransaction(r io.Reader) (*Transaction, error) {
 	err = json.Unmarshal(serial, &newTransaction)
 	return &newTransaction, err
 }
+*/

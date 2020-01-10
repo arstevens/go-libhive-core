@@ -6,17 +6,20 @@ import (
 	"path/filepath"
 )
 
+// Need to generalize Party to support Transaction as an interface
+
 // Is there a way to have nodes only keep info on selective parties &
 // still enable synchronous consensus?
 type Party struct {
 	id         string
 	fsLocation string
 	history    float64
+	parser     TransactionParser
 }
 
 func (p Party) AddTransaction(t Transaction) error {
 	// Add file to the folder for this parties transactions
-	transactionFile, err := os.Open(p.fsLocation + "/" + t.transactionId)
+	transactionFile, err := os.Open(p.fsLocation + "/" + t.Id())
 	if err != nil {
 		return err
 	}
@@ -35,7 +38,7 @@ func (p Party) AddTransaction(t Transaction) error {
 		for i := 0; i < len(recordedParties) && !partyFound; i++ {
 			if party == recordedParties[i] {
 				newRoot := parentDir + "/" + party
-				err = os.Symlink(transactionFile.Name(), newRoot+"/"+t.transactionId)
+				err = os.Symlink(transactionFile.Name(), newRoot+"/"+t.Id())
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -50,7 +53,7 @@ func (p Party) AddTransaction(t Transaction) error {
 				log.Fatal(err)
 			}
 
-			err = os.Symlink(transactionFile.Name(), newRoot+"/"+t.transactionId)
+			err = os.Symlink(transactionFile.Name(), newRoot+"/"+t.Id())
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -62,14 +65,14 @@ func (p Party) AddTransaction(t Transaction) error {
 
 func (p Party) SumTransactions() (float64, error) {
 	transactionPaths := readDirectory(p.fsLocation)
-	transcations, err := parseTransactions(transactionPaths)
+	transcations, err := p.parser(transactionPaths)
 	if err != nil {
 		return -1.0, err
 	}
 
 	sum := p.history
 	for _, curTransaction := range transcations {
-		sum += curTransaction.GetAmountExchanged(p.id)
+		sum += (*curTransaction).GetAmountExchanged(p.id)
 	}
 
 	return sum, nil
@@ -85,6 +88,9 @@ func readDirectory(root string) []string {
 	return dirPaths
 }
 
+type TransactionParser func([]string) ([]*Transaction, error)
+
+/*
 func parseTransactions(transactionPaths []string) ([]*Transaction, error) {
 	transactions := make([]*Transaction, len(transactionPaths))
 	for _, fpath := range transactionPaths {
@@ -103,3 +109,4 @@ func parseTransactions(transactionPaths []string) ([]*Transaction, error) {
 
 	return transactions, nil
 }
+*/
