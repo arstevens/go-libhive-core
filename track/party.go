@@ -6,8 +6,6 @@ import (
 	"path/filepath"
 )
 
-// Need to generalize Party to support Transaction as an interface
-
 // Is there a way to have nodes only keep info on selective parties &
 // still enable synchronous consensus?
 type Party struct {
@@ -87,8 +85,6 @@ func readDirectory(root string) []string {
 
 	return dirPaths
 }
-
-type TransactionParser func([]string) ([]*Transaction, error)
 
 /*
 func parseTransactions(transactionPaths []string) ([]*Transaction, error) {
