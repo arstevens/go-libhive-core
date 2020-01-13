@@ -86,6 +86,7 @@ func readDirectory(root string) []string {
 	return dirPaths
 }
 
+// Should be moved to go-libhive and refactored
 /*
 func parseTransactions(transactionPaths []string) ([]*Transaction, error) {
 	transactions := make([]*Transaction, len(transactionPaths))

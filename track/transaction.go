@@ -1,19 +1,16 @@
 package track
 
-import "io"
-
-// need to make transaction an interface to allow different type of
-// datapoints to be stored(aka WDS information)
 type Transaction interface {
 	Id() string
 	Parties() []string
 	Marshal() []byte
-	Unmarshal(io.Reader) error
 	GetAmountExchanged(string) float64
+	Metadata() map[string]interface{}
 }
 
 type TransactionParser func(paths []string) ([]*Transaction, error)
 
+// Should be moved to go-libhive and refactored
 /*
 type Transaction struct {
 	transactionId string
