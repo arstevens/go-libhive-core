@@ -17,7 +17,7 @@ type Party struct {
 func NewParty(id string, loc string, hist float64) *Party {
 	fsLoc := loc + "/" + id
 	if !fileExists(fsLoc) {
-		os.Mkdir(fsLoc, os.ModeDir)
+		os.Mkdir(fsLoc, 0777)
 	}
 	return &Party{id: id, fsLocation: fsLoc, history: hist}
 }
