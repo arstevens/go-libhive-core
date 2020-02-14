@@ -1,13 +1,17 @@
 package track
 
-import (
-	"encoding/json"
-	"io"
-	"io/ioutil"
-	"log"
-	"time"
-)
+type Transaction interface {
+	Id() string
+	Parties() []string
+	Marshal() []byte
+	GetAmountExchanged(string) float64
+	Metadata() map[string]interface{}
+}
 
+type TransactionParser func(paths []string) ([]*Transaction, error)
+
+// Should be moved to go-libhive and refactored
+/*
 type Transaction struct {
 	transactionId string
 	exchanges     map[string]float64
@@ -53,3 +57,4 @@ func UnmarshalTransaction(r io.Reader) (*Transaction, error) {
 	err = json.Unmarshal(serial, &newTransaction)
 	return &newTransaction, err
 }
+*/
