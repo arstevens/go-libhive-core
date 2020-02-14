@@ -2,6 +2,7 @@ package track
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -18,7 +19,10 @@ type Party struct {
 func NewParty(id string, loc string, hist float64) *Party {
 	fsLoc := loc + "/" + id
 	if !fileExists(fsLoc) {
-		os.Mkdir(fsLoc, 0777)
+		err := os.Mkdir(fsLoc, 0777)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 	}
 	return &Party{id: id, fsLocation: fsLoc, history: hist}
 }
