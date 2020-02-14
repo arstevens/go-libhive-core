@@ -86,6 +86,7 @@ func (p *Party) SumTransactions() (float64, error) {
 
 func readDirectory(root string) []string {
 	files, err := ioutil.ReadDir(root)
+	fmt.Println(files)
 	if err != nil {
 		fmt.Println(err)
 		return nil
