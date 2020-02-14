@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/rand"
 	"fmt"
-	"os"
 	"strconv"
 	"time"
 
@@ -12,45 +11,67 @@ import (
 
 func main() {
 	/*
-		parties := make([]track.Party, 10)
-		fmt.Println("Parties\n-------")
-		for i := 0; i < 10; i++ {
-			party, err := createRandomParty()
-			if err != nil {
-				panic(err)
-			}
-			fmt.Println(party.Id())
-			parties[i] = party
-		}
+		  // Party creation and transaction Marshalling test
+				parties := make([]track.Party, 10)
+				fmt.Println("Parties\n-------")
+				for i := 0; i < 10; i++ {
+					party, err := createRandomParty()
+					if err != nil {
+						panic(err)
+					}
+					fmt.Println(party.Id())
+					parties[i] = party
+				}
 
-		fmt.Println("Transactions\n-------------")
-		for i := 0; i < 10; i += 2 {
-			tid := generateRandomString()
+				fmt.Println("Transactions\n-------------")
+				for i := 0; i < 10; i += 2 {
+					tid := generateRandomString()
 
-			exchanges := make(map[string]float64)
-			val := mrand.Float64()
-			exchanges[parties[i].Id()] = val
-			exchanges[parties[i+1].Id()] = -val
-			trans := track.NewTransaction(tid, exchanges, time.Now())
-			fmt.Println(exchanges)
-			err := parties[i].AddTransaction(*trans)
-			if err != nil {
-				panic(err)
-			}
-		}
+					exchanges := make(map[string]float64)
+					val := mrand.Float64()
+					exchanges[parties[i].Id()] = val
+					exchanges[parties[i+1].Id()] = -val
+					trans := track.NewTransaction(tid, exchanges, time.Now())
+					fmt.Println(exchanges)
+					err := parties[i].AddTransaction(*trans)
+					if err != nil {
+						panic(err)
+					}
+				}
 	*/
 
-	f, err := os.Open("/home/aleksandr/fsLoc/1581714437830101486/1581714437830603015")
+	// Transaction Unmarshalling test
+	/*
+		f, err := os.Open("/home/aleksandr/fsLoc/1581714437830101486/1581714437830603015")
+		if err != nil {
+			panic(err)
+		}
+		t, err := track.UnmarshalTransaction(f)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(t.Id())
+		fmt.Println(t.Parties())
+		fmt.Println(t.Time())
+	*/
+
+	// Party Transaction Sum test
+	p := track.NewParty("1", "/home/aleksandr/fsLoc", 0.0)
+	exchanges := make(map[string]float64)
+	exchanges["1"] = 0.1
+	exchanges["2"] = -0.1
+	t1 := track.NewTransaction("a", exchanges, time.Now())
+	p.AddTransaction(*t1)
+	delete(exchanges, "2")
+	exchanges["3"] = -0.1
+	t2 := track.NewTransaction("b", exchanges, time.Now())
+	p.AddTransaction(*t2)
+
+	sum, err := p.SumTransactions()
 	if err != nil {
 		panic(err)
 	}
-	t, err := track.UnmarshalTransaction(f)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(t.Id())
-	fmt.Println(t.Parties())
-	fmt.Println(t.Time())
+	fmt.Println(sum)
 }
 
 func createRandomParty() (track.Party, error) {
