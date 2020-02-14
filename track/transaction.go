@@ -2,6 +2,7 @@ package track
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -40,11 +41,22 @@ func (t Transaction) GetAmountExchanged(id string) float64 {
 
 func (t Transaction) Marshal() []byte {
 	serial, err := json.Marshal(t)
+	fmt.Println("Serial: " + string(serial))
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	return serial
+
+	/*
+		serial := t.transactionId + ","
+		exchangeSerial := ""
+		for party, value := range t.exchanges {
+			fStr := strconv.FormatFloat(value, 'E', -1, 64)
+			exchangeSerial += party + ":" + fStr + ","
+
+		}
+	*/
 }
 
 func UnmarshalTransaction(r io.Reader) (*Transaction, error) {
