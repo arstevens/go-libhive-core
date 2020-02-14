@@ -100,7 +100,7 @@ func readDirectory(root string) []string {
 }
 
 func parseTransactions(transactionPaths []string) ([]*Transaction, error) {
-	transactions := make([]*Transaction, len(transactionPaths))
+	transactions := make([]*Transaction, 0)
 	for _, fpath := range transactionPaths {
 		file, err := os.Open(fpath)
 		if err != nil {
