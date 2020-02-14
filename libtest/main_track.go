@@ -55,8 +55,8 @@ func main() {
 		fmt.Println(t.Time())
 	*/
 
-	// Party Transaction Sum test
 	/*
+		// Party Transaction Sum test
 		p := track.NewParty("1", "/home/aleksandr/fsLoc", 0.0)
 		exchanges := make(map[string]float64)
 		exchanges["1"] = 0.1
