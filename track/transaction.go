@@ -52,7 +52,7 @@ func (t Transaction) Marshal() []byte {
 		serial += party + ":" + fStr + ","
 	}
 
-	timeMarshal, err := t.gmtTimestamp.MarshalBinary()
+	timeMarshal, err := t.gmtTimestamp.MarshalText()
 	if err != nil {
 		fmt.Println(err.Error())
 		return nil
@@ -82,7 +82,7 @@ func UnmarshalTransaction(r io.Reader) (*Transaction, error) {
 
 	var tTime *time.Time
 	timeBytes := []byte(serialParts[len(serialParts)-1])
-	err = tTime.UnmarshalBinary(timeBytes)
+	err = tTime.UnmarshalText(timeBytes)
 	if err != nil {
 		return nil, err
 	}

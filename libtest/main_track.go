@@ -3,7 +3,7 @@ package main
 import (
 	"crypto/rand"
 	"fmt"
-	mrand "math/rand"
+	"os"
 	"strconv"
 	"time"
 
@@ -11,33 +11,45 @@ import (
 )
 
 func main() {
-	parties := make([]track.Party, 10)
-	fmt.Println("Parties\n-------")
-	for i := 0; i < 10; i++ {
-		party, err := createRandomParty()
-		if err != nil {
-			panic(err)
+	/*
+		parties := make([]track.Party, 10)
+		fmt.Println("Parties\n-------")
+		for i := 0; i < 10; i++ {
+			party, err := createRandomParty()
+			if err != nil {
+				panic(err)
+			}
+			fmt.Println(party.Id())
+			parties[i] = party
 		}
-		fmt.Println(party.Id())
-		parties[i] = party
-	}
 
-	fmt.Println("Transactions\n-------------")
-	for i := 0; i < 10; i += 2 {
-		tid := generateRandomString()
+		fmt.Println("Transactions\n-------------")
+		for i := 0; i < 10; i += 2 {
+			tid := generateRandomString()
 
-		exchanges := make(map[string]float64)
-		val := mrand.Float64()
-		exchanges[parties[i].Id()] = val
-		exchanges[parties[i+1].Id()] = -val
-		trans := track.NewTransaction(tid, exchanges, time.Now())
-		fmt.Println(exchanges)
-		err := parties[i].AddTransaction(*trans)
-		if err != nil {
-			panic(err)
+			exchanges := make(map[string]float64)
+			val := mrand.Float64()
+			exchanges[parties[i].Id()] = val
+			exchanges[parties[i+1].Id()] = -val
+			trans := track.NewTransaction(tid, exchanges, time.Now())
+			fmt.Println(exchanges)
+			err := parties[i].AddTransaction(*trans)
+			if err != nil {
+				panic(err)
+			}
 		}
-	}
+	*/
 
+	f, err := os.Open("/home/aleksandr/fsLoc/1581714437830101486/1581714437830603015")
+	if err != nil {
+		panic(err)
+	}
+	t, err := track.UnmarshalTransaction(f)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(t.Id())
+	fmt.Println(t.Parties())
 }
 
 func createRandomParty() (track.Party, error) {
