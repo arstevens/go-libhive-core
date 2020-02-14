@@ -25,9 +25,18 @@ func NewExchangeGraph(root string) (*ExchangeGraph, error) {
 		graph.parties[i] = &Party{id: filepath.Base(partyDir), fsLocation: partyDir}
 	}
 
-	hFile, err := os.Open(HistoryFile)
-	if err != nil {
-		return nil, err
+	historyPath := root + "/" + HistoryFile
+	var hFile *os.File
+	if !fileExists(HistoryFile) {
+		hFile, err := os.Create(historyPath, 0777)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		hFile, err := os.Open(root + "/" + HistoryFile)
+		if err != nil {
+			return nil, err
+		}
 	}
 	defer hFile.Close()
 
