@@ -35,7 +35,7 @@ func main() {
 		exchanges[parties[i+1].Id()] = -val
 		trans := track.NewTransaction(tid, exchanges, time.Now())
 		fmt.Println(exchanges)
-		err = parties[i].AddTransaction(trans)
+		err = parties[i].AddTransaction(*trans)
 		if err != nil {
 			panic(err)
 		}
@@ -64,6 +64,6 @@ func generateRandomBytes(n int) ([]byte, error) {
 }
 
 func generateRandomString(s int) (string, error) {
-	b, err := GenerateRandomBytes(s)
+	b, err := generateRandomBytes(s)
 	return base64.URLEncoding.EncodeToString(b), err
 }
