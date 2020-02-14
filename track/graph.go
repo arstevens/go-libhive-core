@@ -23,7 +23,10 @@ func NewExchangeGraph(root string) (*ExchangeGraph, error) {
 	partyDirs := readDirectory(root)
 	graph.parties = make([]*Party, len(partyDirs))
 	for i, partyDir := range partyDirs {
-		graph.parties[i] = &Party{id: filepath.Base(partyDir), fsLocation: partyDir, history: 0.0}
+		id := filepath.Base(partyDir)
+		if id != HistoryFile {
+			graph.parties[i] = &Party{id: id, fsLocation: partyDir, history: 0.0}
+		}
 	}
 
 	historyPath := root + "/" + HistoryFile
