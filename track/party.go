@@ -30,7 +30,8 @@ func (p *Party) Id() string {
 
 func (p *Party) AddTransaction(t Transaction) error {
 	// Add file to the folder for this parties transactions
-	tFile := p.fsLocation + "/" + t.Id()
+	os.Chdir(p.fsLocation)
+	tFile := /*p.fsLocation + "/" +*/ t.Id()
 	fmt.Println(tFile)
 	if fileExists(tFile) {
 		return errors.New("Transaction already exists. Transactions are immutable")
