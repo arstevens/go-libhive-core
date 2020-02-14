@@ -18,6 +18,10 @@ func NewTransaction(tid string, exchanges map[string]float64, tstamp time.Time) 
 	return &Transaction{transactionId: tid, exchanges: exchanges, gmtTimestamp: tstamp}
 }
 
+func (t Transaction) Id() string {
+	return t.transactionId
+}
+
 // Returns everyone involved in the transaction
 func (t Transaction) Parties() []string {
 	parties := make([]string, len(t.exchanges))

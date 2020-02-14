@@ -31,7 +31,7 @@ func main() {
 
 		exchanges := make(map[string]float64)
 		val := mrand.Float64()
-		exchanges[parites[i].Id()] = val
+		exchanges[parties[i].Id()] = val
 		exchanges[parties[i+1].Id()] = -val
 		trans := track.NewTransaction(tid, exchanges, time.Now())
 		fmt.Println(exchanges)

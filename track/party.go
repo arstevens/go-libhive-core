@@ -12,7 +12,6 @@ type Party struct {
 	id         string
 	fsLocation string
 	history    float64
-	parser     TransactionParser
 }
 
 func (p *Party) NewParty(id string, loc string, hist float64) *Party {
@@ -71,7 +70,7 @@ func (p *Party) AddTransaction(t Transaction) error {
 
 func (p *Party) SumTransactions() (float64, error) {
 	transactionPaths := readDirectory(p.fsLocation)
-	transcations, err := p.parser(transactionPaths)
+	transcations, err := parseTransactions(transactionPaths)
 	if err != nil {
 		return -1.0, err
 	}
@@ -94,8 +93,6 @@ func readDirectory(root string) []string {
 	return dirPaths
 }
 
-// Should be moved to go-libhive and refactored
-/*
 func parseTransactions(transactionPaths []string) ([]*Transaction, error) {
 	transactions := make([]*Transaction, len(transactionPaths))
 	for _, fpath := range transactionPaths {
@@ -114,4 +111,3 @@ func parseTransactions(transactionPaths []string) ([]*Transaction, error) {
 
 	return transactions, nil
 }
-*/
