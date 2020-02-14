@@ -42,7 +42,6 @@ func (p *Party) AddTransaction(t Transaction) error {
 	defer transactionFile.Close()
 
 	serial := t.Marshal()
-	fmt.Println(serial)
 	_, err = transactionFile.Write(serial)
 	if err != nil {
 		fmt.Println(err.Error())
