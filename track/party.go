@@ -1,6 +1,7 @@
 package track
 
 import (
+	"errors"
 	"log"
 	"os"
 	"path/filepath"
@@ -28,7 +29,12 @@ func (p *Party) Id() string {
 
 func (p *Party) AddTransaction(t Transaction) error {
 	// Add file to the folder for this parties transactions
-	transactionFile, err := os.Open(p.fsLocation + "/" + t.Id())
+	tFile := p.fsLocation + "/" + t.Id()
+	if fileExists(tFile) {
+		return errors.New("Transaction already exists. Transactions are immutable")
+	}
+
+	transactionFile, err := os.Create(tFile)
 	if err != nil {
 		return err
 	}
