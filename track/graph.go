@@ -2,7 +2,6 @@ package track
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -63,10 +62,6 @@ func NewExchangeGraph(root string) (*ExchangeGraph, error) {
 			party.history = history[party.id]
 		}
 	}
-	for _, party := range graph.parties {
-		fmt.Println(party.fsLocation)
-	}
-
 	return &graph, nil
 }
 

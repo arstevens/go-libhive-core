@@ -58,7 +58,6 @@ func (p *Party) AddTransaction(t Transaction) error {
 				os.Mkdir(parentDir+"/"+party, 0777)
 			}
 			symPath := parentDir + "/" + party + "/" + t.Id()
-			fmt.Println(transactionFile.Name() + " : " + symPath)
 			err = os.Symlink(transactionFile.Name(), symPath)
 			if err != nil {
 				fmt.Println(err.Error())
@@ -72,7 +71,6 @@ func (p *Party) AddTransaction(t Transaction) error {
 func (p *Party) SumTransactions() (float64, error) {
 	transactionPaths := readDirectory(p.fsLocation)
 	transactions, err := parseTransactions(transactionPaths)
-	fmt.Println(transactions)
 	if err != nil {
 		return -1.0, err
 	}

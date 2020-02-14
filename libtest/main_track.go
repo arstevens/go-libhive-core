@@ -55,47 +55,48 @@ func main() {
 		fmt.Println(t.Time())
 	*/
 
-	/*
-		// Party Transaction Sum test
-		p := track.NewParty("1", "/home/aleksandr/fsLoc", 0.0)
-		exchanges := make(map[string]float64)
-		exchanges["1"] = 0.1
-		exchanges["2"] = -0.1
-		t1 := track.NewTransaction("a", exchanges, time.Now())
-		p.AddTransaction(*t1)
-		delete(exchanges, "2")
-		exchanges["3"] = -0.1
-		t2 := track.NewTransaction("b", exchanges, time.Now())
-		p.AddTransaction(*t2)
+	// Party Transaction Sum test
+	p := track.NewParty("1", "/home/aleksandr/fsLoc", 0.0)
+	exchanges := make(map[string]float64)
+	exchanges["1"] = 0.1
+	exchanges["2"] = -0.1
+	t1 := track.NewTransaction("c", exchanges, time.Now())
+	p.AddTransaction(*t1)
+	delete(exchanges, "2")
+	exchanges["3"] = -0.1
+	t2 := track.NewTransaction("d", exchanges, time.Now())
+	p.AddTransaction(*t2)
 
-		sum, err := p.SumTransactions()
+	sum, err := p.SumTransactions()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(sum)
+
+	/*
+		//DAG test
+		eg, err := track.NewExchangeGraph("/home/aleksandr/fsLoc")
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println(sum)
+
+		p1 := eg.GetParty("1")
+		p2 := eg.GetParty("2")
+		p3 := eg.GetParty("3")
+		fmt.Println(p1.Id())
+		fmt.Println(p2.Id())
+		fmt.Println(p3.Id())
+
+		err = eg.Compress("/home/aleksandr/fsLoc/history.json")
+		if err != nil {
+			panic(err)
+		}
+		/*
+			err = eg.DeleteTransactions()
+			if err != nil {
+				panic(err)
+			}
 	*/
-
-	//DAG test
-	eg, err := track.NewExchangeGraph("/home/aleksandr/fsLoc")
-	if err != nil {
-		panic(err)
-	}
-
-	p1 := eg.GetParty("1")
-	p2 := eg.GetParty("2")
-	p3 := eg.GetParty("3")
-	fmt.Println(p1.Id())
-	fmt.Println(p2.Id())
-	fmt.Println(p3.Id())
-
-	err = eg.Compress("/home/aleksandr/fsLoc/history.json")
-	if err != nil {
-		panic(err)
-	}
-	err = eg.DeleteTransactions()
-	if err != nil {
-		panic(err)
-	}
 }
 
 func createRandomParty() (track.Party, error) {
