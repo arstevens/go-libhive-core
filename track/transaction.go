@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
+	"strconv"
 	"time"
 )
 
@@ -45,27 +45,23 @@ type test struct {
 }
 
 func (t Transaction) Marshal() []byte {
-	tt := test{v1: t.Id(), v2: "test"}
-	serial, err := json.Marshal(tt)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	fmt.Println("Serial: " + string(serial))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return serial
-
 	/*
-		serial := t.transactionId + ","
-		exchangeSerial := ""
-		for party, value := range t.exchanges {
-			fStr := strconv.FormatFloat(value, 'E', -1, 64)
-			exchangeSerial += party + ":" + fStr + ","
-
+		serial, err := json.Marshal(t)
+		if err != nil {
+			log.Fatal(err)
 		}
+
+		return serial
+
 	*/
+	serial := t.transactionId + ","
+	for party, value := range t.exchanges {
+		fStr := strconv.FormatFloat(value, 'E', -1, 64)
+		serial += party + ":" + fStr + ","
+	}
+	serial += strconv.FormatInt(t.gmtTimestamp.UnixNano(), 10)
+	fmt.Println(serial)
+	return []byte(serial)
 }
 
 func UnmarshalTransaction(r io.Reader) (*Transaction, error) {
