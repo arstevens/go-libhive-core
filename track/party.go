@@ -71,6 +71,7 @@ func (p *Party) AddTransaction(t Transaction) error {
 
 func (p *Party) SumTransactions() (float64, error) {
 	transactionPaths := readDirectory(p.fsLocation)
+	fmt.Println(transactionPaths)
 	transcations, err := parseTransactions(transactionPaths)
 	if err != nil {
 		return -1.0, err
@@ -86,10 +87,8 @@ func (p *Party) SumTransactions() (float64, error) {
 
 func readDirectory(root string) []string {
 	files, err := ioutil.ReadDir(root)
-	fmt.Println(files)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return []string{}
 	}
 
 	dirPaths := make([]string, len(files))
