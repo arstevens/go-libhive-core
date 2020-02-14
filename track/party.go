@@ -3,6 +3,7 @@ package track
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -70,8 +71,6 @@ func (p *Party) AddTransaction(t Transaction) error {
 
 func (p *Party) SumTransactions() (float64, error) {
 	transactionPaths := readDirectory(p.fsLocation)
-	fmt.Println(p.fsLocation)
-	fmt.Println(transactionPaths)
 	transcations, err := parseTransactions(transactionPaths)
 	if err != nil {
 		return -1.0, err
@@ -86,11 +85,16 @@ func (p *Party) SumTransactions() (float64, error) {
 }
 
 func readDirectory(root string) []string {
-	dirPaths := make([]string, 0)
-	filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		dirPaths = append(dirPaths, path)
+	files, err := ioutil.ReadDir(root)
+	if err != nil {
+		fmt.Println(err)
 		return nil
-	})
+	}
+
+	dirPaths := make([]string, len(files))
+	for i := 0; i < len(files); i++ {
+		dirPaths[i] = root + "/" + files[i].Name()
+	}
 
 	return dirPaths
 }
