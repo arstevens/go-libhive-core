@@ -85,8 +85,10 @@ func UnmarshalTransaction(r io.Reader) (*Transaction, error) {
 
 	tTime := time.Time{}
 	timeBytes := []byte(serialParts[len(serialParts)-1])
+	fmt.Println(timeBytes)
 	err = tTime.UnmarshalBinary(timeBytes)
 	if err != nil {
+		fmt.Println("here")
 		return nil, err
 	}
 
