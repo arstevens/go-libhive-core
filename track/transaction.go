@@ -39,8 +39,14 @@ func (t Transaction) GetAmountExchanged(id string) float64 {
 	return t.exchanges[id]
 }
 
+type test struct {
+	v1 string
+	v2 string
+}
+
 func (t Transaction) Marshal() []byte {
-	serial, err := json.Marshal(t)
+	tt := test{v1: t.Id(), v2: "test"}
+	serial, err := json.Marshal(tt)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
