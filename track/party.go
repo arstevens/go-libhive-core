@@ -71,14 +71,14 @@ func (p *Party) AddTransaction(t Transaction) error {
 
 func (p *Party) SumTransactions() (float64, error) {
 	transactionPaths := readDirectory(p.fsLocation)
-	fmt.Println(transactionPaths)
-	transcations, err := parseTransactions(transactionPaths)
+	transactions, err := parseTransactions(transactionPaths)
+	fmt.Println(transactions)
 	if err != nil {
 		return -1.0, err
 	}
 
 	sum := p.history
-	for _, curTransaction := range transcations {
+	for _, curTransaction := range transactions {
 		sum += (*curTransaction).GetAmountExchanged(p.id)
 	}
 
