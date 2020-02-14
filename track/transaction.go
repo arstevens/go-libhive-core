@@ -41,6 +41,9 @@ func (t Transaction) GetAmountExchanged(id string) float64 {
 
 func (t Transaction) Marshal() []byte {
 	serial, err := json.Marshal(t)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 	fmt.Println("Serial: " + string(serial))
 	if err != nil {
 		log.Fatal(err)
