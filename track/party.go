@@ -2,6 +2,7 @@ package track
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -41,7 +42,11 @@ func (p *Party) AddTransaction(t Transaction) error {
 	defer transactionFile.Close()
 
 	serial := t.Marshal()
+	fmt.Println(serial)
 	_, err = transactionFile.Write(serial)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
 	// Link this transaction to the other members of this transaction
 	parties := t.Parties()
