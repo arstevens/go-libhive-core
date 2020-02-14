@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -45,22 +46,19 @@ type test struct {
 }
 
 func (t Transaction) Marshal() []byte {
-	/*
-		serial, err := json.Marshal(t)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		return serial
-
-	*/
 	serial := t.transactionId + ","
 	for party, value := range t.exchanges {
 		fStr := strconv.FormatFloat(value, 'E', -1, 64)
 		serial += party + ":" + fStr + ","
 	}
-	serial += strconv.FormatInt(t.gmtTimestamp.UnixNano(), 10)
-	fmt.Println(serial)
+
+	timeMarshal, err := t.gmtTimestamp.MarshalText()
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil
+	}
+
+	serial += string(timeMarshal)
 	return []byte(serial)
 }
 
@@ -70,6 +68,28 @@ func UnmarshalTransaction(r io.Reader) (*Transaction, error) {
 	if err != nil {
 		return nil, err
 	}
+	serialParts := strings.Split(string(serial), ",")
+
+	exchanges := make(map[string]float64)
+	for i := 1; i < len(serialParts)-1; i++ {
+		exchangeParts := strings.Split(serialParts[i], ":")
+		exVal, err := strconv.ParseFloat(exchangeParts[1], 64)
+		if err != nil {
+			return nil, err
+		}
+		exchanges[exchangeParts[0]] = exVal
+	}
+
+	var tTime *time.Time
+	timeBytes := []byte(serialParts[len(serialParts)-1])
+	err = tTime.UnmarshalText(timeBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	newTransaction.transactionId = serialParts[0]
+	newTransaction.exchanges = exchanges
+	newTransaction.gmtTimestamp = *tTime
 
 	err = json.Unmarshal(serial, &newTransaction)
 	return &newTransaction, err
