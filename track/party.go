@@ -2,7 +2,6 @@ package track
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -31,7 +30,6 @@ func (p *Party) Id() string {
 func (p *Party) AddTransaction(t Transaction) error {
 	// Add file to the folder for this parties transactions
 	tFile := p.fsLocation + "/" + t.Id()
-	fmt.Println(tFile)
 	if fileExists(tFile) {
 		return errors.New("Transaction already exists. Transactions are immutable")
 	}
@@ -51,9 +49,6 @@ func (p *Party) AddTransaction(t Transaction) error {
 	recordedParties := readDirectory(parentDir)
 
 	for _, party := range parties {
-		if party == p.Id() {
-			continue
-		}
 		partyFound := false
 		for i := 0; i < len(recordedParties) && !partyFound; i++ {
 			if party == recordedParties[i] {
@@ -66,18 +61,20 @@ func (p *Party) AddTransaction(t Transaction) error {
 				partyFound = true
 			}
 		}
-		if !partyFound {
-			newRoot := parentDir + "/" + party
-			err = os.Mkdir(newRoot, os.ModeDir)
-			if err != nil {
-				log.Fatal(err)
-			}
+		/*
+			if !partyFound {
+				newRoot := parentDir + "/" + party
+				err = os.Mkdir(newRoot, os.ModeDir)
+				if err != nil {
+					log.Fatal(err)
+				}
 
-			err = os.Symlink(transactionFile.Name(), newRoot+"/"+t.Id())
-			if err != nil {
-				log.Fatal(err)
+				err = os.Symlink(transactionFile.Name(), newRoot+"/"+t.Id())
+				if err != nil {
+					log.Fatal(err)
+				}
 			}
-		}
+		*/
 	}
 
 	return err
