@@ -14,6 +14,10 @@ type Transaction struct {
 	gmtTimestamp  time.Time // should be GMT
 }
 
+func NewTransaction(tid string, exchanges map[string]float64, tstamp time.Time) *Transaction {
+	return &Transaction{transactionId: tid, exchanges: exchanges, gmtTimestamp: tstamp}
+}
+
 // Returns everyone involved in the transaction
 func (t Transaction) Parties() []string {
 	parties := make([]string, len(t.exchanges))

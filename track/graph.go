@@ -50,6 +50,10 @@ func NewExchangeGraph(root string) (*ExchangeGraph, error) {
 	return &graph, nil
 }
 
+func (e *ExchangeGraph) AddParty(p *Party) {
+	e.parties = append(e.parties, p)
+}
+
 func (e *ExchangeGraph) GetParty(id string) *Party {
 	for _, party := range e.parties {
 		if party.id == id {

@@ -14,7 +14,15 @@ type Party struct {
 	history    float64
 }
 
-func (p Party) AddTransaction(t Transaction) error {
+func (p *Party) NewParty(id string, loc string, hist float64) *Party {
+	return &Party{id: id, fsLocation: loc, history: hist}
+}
+
+func (p *Party) Id() string {
+	return p.id
+}
+
+func (p *Party) AddTransaction(t Transaction) error {
 	// Add file to the folder for this parties transactions
 	transactionFile, err := os.Open(p.fsLocation + "/" + t.transactionId)
 	if err != nil {
@@ -60,7 +68,7 @@ func (p Party) AddTransaction(t Transaction) error {
 	return err
 }
 
-func (p Party) SumTransactions() (float64, error) {
+func (p *Party) SumTransactions() (float64, error) {
 	transactionPaths := readDirectory(p.fsLocation)
 	transcations, err := parseTransactions(transactionPaths)
 	if err != nil {
