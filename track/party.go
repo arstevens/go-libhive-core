@@ -15,7 +15,11 @@ type Party struct {
 }
 
 func NewParty(id string, loc string, hist float64) *Party {
-	return &Party{id: id, fsLocation: loc, history: hist}
+	fsLoc := loc + "/" + id
+	if !fileExists(fsLoc) {
+		os.Mkdir(fsLoc, os.ModeDir)
+	}
+	return &Party{id: id, fsLocation: fsLoc, history: hist}
 }
 
 func (p *Party) Id() string {
@@ -110,4 +114,15 @@ func parseTransactions(transactionPaths []string) ([]*Transaction, error) {
 	}
 
 	return transactions, nil
+}
+
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	}
+	return true
 }

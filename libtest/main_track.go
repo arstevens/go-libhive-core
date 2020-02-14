@@ -2,9 +2,9 @@ package main
 
 import (
 	"crypto/rand"
-	"encoding/base64"
 	"fmt"
 	mrand "math/rand"
+	"strconv"
 	"time"
 
 	"github.com/arstevens/go-libhive-core/track"
@@ -24,10 +24,7 @@ func main() {
 
 	fmt.Println("Transactions\n-------------")
 	for i := 0; i < 10; i += 2 {
-		tid, err := generateRandomString(int(time.Now().UnixNano()))
-		if err != nil {
-			panic(err)
-		}
+		tid := generateRandomString()
 
 		exchanges := make(map[string]float64)
 		val := mrand.Float64()
@@ -35,7 +32,7 @@ func main() {
 		exchanges[parties[i+1].Id()] = -val
 		trans := track.NewTransaction(tid, exchanges, time.Now())
 		fmt.Println(exchanges)
-		err = parties[i].AddTransaction(*trans)
+		err := parties[i].AddTransaction(*trans)
 		if err != nil {
 			panic(err)
 		}
@@ -44,13 +41,9 @@ func main() {
 }
 
 func createRandomParty() (track.Party, error) {
-	pid, err := generateRandomString(int(time.Now().UnixNano()))
-	if err != nil {
-		return track.Party{}, err
-	}
-
+	pid := generateRandomString()
 	party := track.NewParty(pid, "/home/aleksandr/fsLoc", 0.0)
-	return party, nil
+	return *party, nil
 }
 
 func generateRandomBytes(n int) ([]byte, error) {
@@ -63,7 +56,6 @@ func generateRandomBytes(n int) ([]byte, error) {
 	return b, nil
 }
 
-func generateRandomString(s int) (string, error) {
-	b, err := generateRandomBytes(s)
-	return base64.URLEncoding.EncodeToString(b), err
+func generateRandomString() string {
+	return strconv.Itoa(int(time.Now().UnixNano()))
 }
