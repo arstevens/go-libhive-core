@@ -22,7 +22,7 @@ func NewExchangeGraph(root string) (*ExchangeGraph, error) {
 	partyDirs := readDirectory(root)
 	graph.parties = make([]*Party, len(partyDirs))
 	for i, partyDir := range partyDirs {
-		graph.parties[i] = &Party{id: filepath.Base(partyDir), fsLocation: partyDir}
+		graph.parties[i] = &Party{id: filepath.Base(partyDir), fsLocation: partyDir, history: 0.0}
 	}
 
 	historyPath := root + "/" + HistoryFile
@@ -46,15 +46,18 @@ func NewExchangeGraph(root string) (*ExchangeGraph, error) {
 	if err != nil {
 		return nil, err
 	}
-	history := make(map[string]float64)
-	err = json.Unmarshal(rawHistory, &history)
-	if err != nil {
-		return nil, err
-	}
 
-	// Store starting values in Party objects
-	for _, party := range graph.parties {
-		party.history = history[party.id]
+	history := make(map[string]float64)
+	if len(rawHistory) > 0 {
+		err = json.Unmarshal(rawHistory, &history)
+		if err != nil {
+			return nil, err
+		}
+
+		// Store starting values in Party objects
+		for _, party := range graph.parties {
+			party.history = history[party.id]
+		}
 	}
 
 	return &graph, nil
