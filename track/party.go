@@ -53,8 +53,9 @@ func (p *Party) AddTransaction(t Transaction) error {
 	for _, party := range parties {
 		partyFound := fileExists(parentDir + "/" + party)
 		if partyFound {
-			fmt.Println(transactionFile.Name() + " : " + parentDir + "/" + t.Id())
-			err = os.Symlink(transactionFile.Name(), parentDir+"/"+t.Id())
+			symPath := parentDir + "/" + party + "/" + t.Id()
+			fmt.Println(transactionFile.Name() + " : " + symPath)
+			err = os.Symlink(transactionFile.Name(), symPath)
 			if err != nil {
 				fmt.Println(err.Error())
 			}
