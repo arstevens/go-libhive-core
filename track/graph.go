@@ -100,6 +100,10 @@ func (e *ExchangeGraph) Compress(outpath string) error {
 // Clears all transactions in root directory. Ignores history file
 func (e *ExchangeGraph) DeleteTransactions() error {
 	for _, party := range e.parties {
+		dFiles := readDirectory(party.fsLocation)
+		for _, file := range dFiles {
+			os.Remove(file)
+		}
 		err := os.Remove(party.fsLocation)
 		if err != nil {
 			return err

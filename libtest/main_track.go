@@ -87,6 +87,15 @@ func main() {
 	fmt.Println(p1.Id())
 	fmt.Println(p2.Id())
 	fmt.Println(p3.Id())
+
+	err = eg.Compress("/home/aleksandr/fsLoc/history.json")
+	if err != nil {
+		panic(err)
+	}
+	err = eg.DeleteTransactions()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func createRandomParty() (track.Party, error) {
