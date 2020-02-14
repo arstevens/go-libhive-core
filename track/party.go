@@ -36,7 +36,7 @@ func (p *Party) AddTransaction(t Transaction) error {
 		return errors.New("Transaction already exists. Transactions are immutable")
 	}
 
-	transactionFile, err := os.Create(tFile)
+	transactionFile, err := os.OpenFile(tFile, os.O_CREATE, 0777)
 	if err != nil {
 		return err
 	}
