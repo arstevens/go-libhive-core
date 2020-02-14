@@ -50,6 +50,7 @@ func main() {
 	}
 	fmt.Println(t.Id())
 	fmt.Println(t.Parties())
+	fmt.Println(t.Time())
 }
 
 func createRandomParty() (track.Party, error) {

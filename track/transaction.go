@@ -23,6 +23,10 @@ func (t Transaction) Id() string {
 	return t.transactionId
 }
 
+func (t Transaction) Time() time.Time {
+	return t.gmtTimestamp
+}
+
 // Returns everyone involved in the transaction
 func (t Transaction) Parties() []string {
 	parties := make([]string, len(t.exchanges))
@@ -79,12 +83,8 @@ func UnmarshalTransaction(r io.Reader) (*Transaction, error) {
 		exchanges[exchangeParts[0]] = exVal
 	}
 
-	fmt.Println(serialParts[0])
-	fmt.Println(exchanges)
-
 	tTime := time.Time{}
 	timeBytes := []byte(serialParts[len(serialParts)-1])
-	fmt.Println(timeBytes)
 	err = tTime.UnmarshalBinary(timeBytes)
 	if err != nil {
 		return nil, err
