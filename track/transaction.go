@@ -83,7 +83,7 @@ func UnmarshalTransaction(r io.Reader) (*Transaction, error) {
 	fmt.Println(serialParts[0])
 	fmt.Println(exchanges)
 
-	var tTime *time.Time
+	tTime := time.Time{}
 	timeBytes := []byte(serialParts[len(serialParts)-1])
 	err = tTime.UnmarshalBinary(timeBytes)
 	if err != nil {
@@ -92,7 +92,7 @@ func UnmarshalTransaction(r io.Reader) (*Transaction, error) {
 
 	newTransaction.transactionId = serialParts[0]
 	newTransaction.exchanges = exchanges
-	newTransaction.gmtTimestamp = *tTime
+	newTransaction.gmtTimestamp = tTime
 
 	err = json.Unmarshal(serial, &newTransaction)
 	return &newTransaction, err
