@@ -3,7 +3,6 @@ package track
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -50,35 +49,16 @@ func (p *Party) AddTransaction(t Transaction) error {
 	// Link this transaction to the other members of this transaction
 	parties := t.Parties()
 	parentDir := filepath.Dir(p.fsLocation)
-	recordedParties := readDirectory(parentDir)
 
 	for _, party := range parties {
-		partyFound := false
-		for i := 0; i < len(recordedParties) && !partyFound; i++ {
-			if party == recordedParties[i] {
-				newRoot := parentDir + "/" + party
-				err = os.Symlink(transactionFile.Name(), newRoot+"/"+t.Id())
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				partyFound = true
+		partyFound := fileExists(parentDir + "/" + party)
+		if partyFound {
+			fmt.Println(transactionFile.Name() + " : " + parentDir + "/" + t.Id())
+			err = os.Symlink(transactionFile.Name(), parentDir+"/"+t.Id())
+			if err != nil {
+				fmt.Println(err.Error())
 			}
 		}
-		/*
-			if !partyFound {
-				newRoot := parentDir + "/" + party
-				err = os.Mkdir(newRoot, os.ModeDir)
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				err = os.Symlink(transactionFile.Name(), newRoot+"/"+t.Id())
-				if err != nil {
-					log.Fatal(err)
-				}
-			}
-		*/
 	}
 
 	return err
