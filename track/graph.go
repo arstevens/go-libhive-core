@@ -27,13 +27,14 @@ func NewExchangeGraph(root string) (*ExchangeGraph, error) {
 
 	historyPath := root + "/" + HistoryFile
 	var hFile *os.File
+	var err error
 	if !fileExists(HistoryFile) {
-		hFile, err := os.Create(historyPath, 0777)
+		hFile, err = os.Create(historyPath)
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		hFile, err := os.Open(root + "/" + HistoryFile)
+		hFile, err = os.Open(root + "/" + HistoryFile)
 		if err != nil {
 			return nil, err
 		}
