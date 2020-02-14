@@ -1,7 +1,6 @@
 package track
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -88,7 +87,6 @@ func UnmarshalTransaction(r io.Reader) (*Transaction, error) {
 	fmt.Println(timeBytes)
 	err = tTime.UnmarshalBinary(timeBytes)
 	if err != nil {
-		fmt.Println("here")
 		return nil, err
 	}
 
@@ -96,6 +94,5 @@ func UnmarshalTransaction(r io.Reader) (*Transaction, error) {
 	newTransaction.exchanges = exchanges
 	newTransaction.gmtTimestamp = tTime
 
-	err = json.Unmarshal(serial, &newTransaction)
 	return &newTransaction, err
 }
