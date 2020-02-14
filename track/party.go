@@ -14,7 +14,7 @@ type Party struct {
 	history    float64
 }
 
-func (p *Party) NewParty(id string, loc string, hist float64) *Party {
+func NewParty(id string, loc string, hist float64) *Party {
 	return &Party{id: id, fsLocation: loc, history: hist}
 }
 
